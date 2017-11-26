@@ -1,0 +1,60 @@
+
+# Python, Django, PyCharm
+*pyc
+bin/
+include/
+lib/
+local/
+.idea/
+*.sqlite3
+*.html.py
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Secret files
+secret.py
+file.log
+webapp/static
+*.json
+logs
+db*
+*sqlite3
+
+# Cpp stuff
+processing/*/build
+conanbuildinfo.cmake
+conaninfo.txt
+build_*/
+tmp/
+0_*.bat
+config_tests.h
+webapp/server/local_settings.py
+webapp/server/settings_*.py
+*.mo
