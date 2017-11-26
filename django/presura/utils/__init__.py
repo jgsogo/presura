@@ -1,9 +1,20 @@
 # -*- coding: utf-8 -*-
 
+import uuid
+import os
 import requests
 from urllib import parse, request
 from clint.textui import progress
 from ftplib import FTP
+
+
+def get_unique_filename(base_path, ext=None):
+    unique_id = uuid.uuid4().hex
+    if ext:
+        unique_id = unique_id + "." + ext
+    filename = os.path.join(base_path, unique_id)
+    assert not os.path.exists(filename)
+    return filename
 
 
 def download(url, filename):

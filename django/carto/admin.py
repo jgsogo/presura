@@ -1,3 +1,9 @@
-from django.contrib import admin
+from django.contrib.gis import admin
 
-# Register your models here.
+from .models import Country, CCAA, Province, Municipality
+
+
+admin.site.register(Country)
+admin.site.register(CCAA)
+admin.site.register(Province)
+admin.site.register(Municipality)

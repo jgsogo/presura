@@ -25,7 +25,7 @@ class Resource(models.Model):
     type = models.IntegerField(choices=TYPE)
     url = models.URLField()
     available = models.BooleanField(default=True)
-    ext = models.CharField(_('extension'), max_length=12)
+    importer = models.CharField(_('importer'), max_length=20)
 
     objects = ResourceManager()
 

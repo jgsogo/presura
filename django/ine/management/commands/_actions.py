@@ -1,25 +1,19 @@
 # -*- coding: utf-8 -*-
 
 import os
-import uuid
+import tempfile
+import shutil
+import zipfile
+import glob
 from django.conf import settings
-from django.utils.text import slugify
-from presura.utils import download
+from presura.utils import download, get_unique_filename
 from ine.models import DownloadLog
+from ine.importers import get_importer
 
 DATA_DIR = getattr(settings, 'DATA_DIR', None)
 
 import logging
 log = logging.getLogger(__name__)
-
-
-def get_unique_filename(base_path, ext=None):
-    unique_id = uuid.uuid4().hex
-    if ext:
-        unique_id = unique_id + "." + ext
-    filename = os.path.join(base_path, unique_id)
-    assert not os.path.exists(filename)
-    return filename
 
 
 class DownloadAction:
@@ -37,7 +31,7 @@ class DownloadAction:
             self.stdout.write("\tUsing existing file '{}'".format(qs.latest('timestamp').filename))
         else:
             base_path = DownloadLog._meta.get_field('filename').path
-            filename = get_unique_filename(base_path, resource.ext)
+            filename = get_unique_filename(base_path)
 
             # Download
             try:
@@ -63,6 +57,8 @@ class ImportAction:
         try:
             item = DownloadLog.objects.filter(resource=resource, deleted=False).latest('timestamp')
             self.stdout.write("\tUsing file for date {}".format(item.timestamp))
+            importer = get_importer(resource, item)
+            importer.run()
         except DownloadLog.DoesNotExist:
             self.stderr.write("\tDownload resource before importing it")
 
