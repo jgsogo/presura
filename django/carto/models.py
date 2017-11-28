@@ -6,7 +6,7 @@ class ShapeItem(models.Model):
     area = models.FloatField()
     perimeter = models.FloatField()
     #bbox = models.PolygonField()
-    points = models.PolygonField()
+    points = models.MultiPolygonField()  # Necesitamos un multipolygon para meter los condados de Treviño y similares
 
     class Meta:
         abstract = True

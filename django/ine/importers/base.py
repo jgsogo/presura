@@ -34,7 +34,7 @@ class ShapefileImporter:
                     setattr(item, tgt, shapeRecs.record[i])
             #item.bbox = Polygon(shapeRecs.shape.bbox)
             item.points = Polygon(shapeRecs.shape.points)
-            item.save()
+            # item.save() # TODO: Uncomment
 
 
 class BaseImporter:
@@ -54,8 +54,14 @@ class BaseImporter:
                     os.makedirs(tmp_folder)
                 f.extractall(path=tmp_folder)
 
-            for file in glob.glob(os.path.join(tmp_folder, "*.shp")):
-                self.import_shp_file(file)
+            files = glob.glob(os.path.join(tmp_folder, "*.shp"))
+            nfiles = len(files)
+            for i, file in enumerate(files, 1):
+                try:
+                    log.debug("[{}/{}] Import file '{}'".format(i, nfiles, file))
+                    self.import_shp_file(file)
+                except Exception as e:
+                    log.error(e)
         except Exception:
             raise
         finally:
