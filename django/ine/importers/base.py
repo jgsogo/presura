@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
 class ShapefileImporter:
     model = None
     fields = None
+    pattern = None
 
     def __init__(self, filename):
         self.sf = shapefile.Reader(filename)
