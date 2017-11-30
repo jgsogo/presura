@@ -34,7 +34,7 @@ class ShapefileImporter:
                 if tgt:
                     setattr(item, tgt, shapeRecs.record[i])
             #item.bbox = Polygon(shapeRecs.shape.bbox)
-            item.points = Polygon(shapeRecs.shape.points)
+            # item.points = Polygon(shapeRecs.shape.points)
             # item.save() # TODO: Uncomment
 
 
