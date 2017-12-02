@@ -11,6 +11,7 @@ from django.utils.translation import gettext as _
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
+from django.conf import settings
 
 
 from model_utils import Choices
@@ -74,7 +75,7 @@ class DataSet(models.Model):
 
         log.debug("Plot image for dataset '{}'".format(self.name))
         figure = io.BytesIO()
-        plt.figure()
+        fig = plt.figure()
         plt.axis('equal')
         plt.axis('off')
         for municipality in self.municipality_set.all():
@@ -83,9 +84,11 @@ class DataSet(models.Model):
                 x = [it[0] for it in poly.coords[0]]
                 y = [it[1] for it in poly.coords[0]]
                 plt.plot(x, y, lw=self.image_line)
-        plt.savefig(figure, format='png', dpi=self.image_dpi)
+        fig.suptitle(self.name)
+        fig.savefig(figure, format='png', dpi=self.image_dpi)
         plt.close()
 
         self.image.delete()
-        self.image.save(str(uuid.uuid4()), ImageFile(figure))
+        filename = "{}.png".format(self.name) if settings.DEBUG else str(uuid.uuid4())
+        self.image.save(filename, ImageFile(figure))
 

@@ -17,7 +17,7 @@ class Command(BaseCommand):
             qs = qs.filter(image__isnull=True)
 
         n = qs.count()
-        for idx, dataset in enumerate(qs[:2], 1):
+        for idx, dataset in enumerate(qs, 1):
             self.stdout.write("[{}/{}] {}".format(idx, n, dataset))
             dataset.plot()
             dataset.save()
