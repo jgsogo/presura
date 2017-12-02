@@ -31,7 +31,7 @@ class DownloadAction:
             self.stdout.write("\tUsing existing file '{}'".format(qs.latest('timestamp').filename))
         else:
             base_path = DownloadLog._meta.get_field('filename').path
-            os.makedirs(base_path, exist_ok=False)
+            os.makedirs(base_path, exist_ok=True)
             filename = get_unique_filename(base_path)
 
             # Download

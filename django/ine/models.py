@@ -6,9 +6,11 @@ from django.db import models
 from django.utils.translation import gettext as _
 from django.conf import settings
 from django.utils.text import slugify
+from django.contrib.contenttypes.fields import GenericRelation
 
 from model_utils import Choices
 
+from datasets.models import DataSet
 from .importers import importers_factory
 
 log = logging.getLogger(__name__)
@@ -42,6 +44,8 @@ class DownloadLog(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     filename = models.FilePathField(path=settings.INE_RESOURCES, editable=False)
     deleted = models.BooleanField(default=False)
+
+    dataset = GenericRelation(DataSet)
 
     class Meta:
         ordering = ['-timestamp']

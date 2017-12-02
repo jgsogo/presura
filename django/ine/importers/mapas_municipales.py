@@ -355,15 +355,19 @@ class MapasMunicipales(INEBaseImporter):
                 return file_importer(filename)
 
         if getattr(settings, 'DEBUG', False):
-            # Try to look a matching importer
-            sf = shapefile.Reader(filename)
-            fields = ', '.join([it[0] for it in sf.fields[1:]])
-            for ff in self.file_importers:
-                ff_fields = set([it[0] for it in ff.fields])
-                if ff_fields == fields:
-                    log.info("File '{}' matched against fields in '{}'".format(filename, str(ff)))
+            try:
+                # Try to look a matching importer
+                sf = shapefile.Reader(filename)
+                fields = ', '.join([it[0] for it in sf.fields[1:]])
+                for ff in self.file_importers:
+                    ff_fields = set([it[0] for it in ff.fields])
+                    if ff_fields == fields:
+                        log.info("File '{}' matched against fields in '{}'".format(filename, str(ff)))
+            except Exception as e:
+                log.warning("Unhandled exception: {}".format(e))
 
-        raise ValueError("MapasMunicipales::get_shapefile_importer for basename '{}' not found".format(basename))
+        log.warning("MapasMunicipales::get_shapefile_importer for basename '{}' not found".format(basename))
+        return None
 
 
 if getattr(settings, 'DEBUG', False):
