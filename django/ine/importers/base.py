@@ -7,6 +7,8 @@ import logging
 import tempfile
 import zipfile
 import shutil
+import json
+from collections import defaultdict
 from django.contrib.gis.geos import Point, Polygon, MultiPolygon
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from datasets.models import Author, DataSet
@@ -42,7 +44,12 @@ class ShapefileImporter:
             for i, field in enumerate(self.fields, 0):
                 ori, tgt = field
                 if tgt:
-                    setattr(item, tgt, shape.record[i])
+                    if tgt == 'name':
+                        name = shape.record[i]
+                        name = name if not isinstance(name, bytes) else name.decode('latin-1')
+                        setattr(item, tgt, name)
+                    else:
+                        setattr(item, tgt, shape.record[i])
             #item.bbox = Polygon(shapeRecs.shape.bbox)
             parts = list(shape.shape.parts) + [len(shape.shape.points)]
             polygons = []
@@ -51,6 +58,15 @@ class ShapefileImporter:
             item.points = MultiPolygon(polygons)
             item.points.transform(trans)
             item.save()  # TODO: Uncomment
+
+    def fields_sample(self, n=3):
+        ret = defaultdict(list)
+        for i, field in enumerate([it[0] for it in self.sf.fields[1:]], 0):
+            for shape in self.sf.shapeRecords()[:n]:
+                value = shape.record[i]
+                value = value if not isinstance(value, bytes) else value.decode('latin-1')
+                ret[field].append(value)
+        return ret
 
 
 class INEBaseImporter:
@@ -95,7 +111,14 @@ class INEBaseImporter:
             dataset = DataSet(content_object=self.item)
             dataset.name = dataset_name
             dataset.author = self.author
-            dataset.save()
+
+            fields_sample = sf.fields_sample()
+            txt = ""
+            for key, values in fields_sample.items():
+                txt += "{}: {}\n".format(key, ', '.join(map(str, values)))
+            dataset.fields_sample = txt
+
+            dataset.save(skip_img=True)
             try:
                 sf.import_all(dataset)
             except Exception as e:
