@@ -7,7 +7,8 @@ import logging
 import tempfile
 import zipfile
 import shutil
-from django.contrib.gis.geos import Point, Polygon
+from django.contrib.gis.geos import Point, Polygon, MultiPolygon
+from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from datasets.models import Author, DataSet
 
 log = logging.getLogger(__name__)
@@ -30,16 +31,25 @@ class ShapefileImporter:
                                                                          ','.join(list(set(importer_fields))))
 
     def import_all(self, dataset):
+        # Credit: Sistemas de coordenadas usados en España: http://www.cartesia.org/foro/viewtopic.php?p=59091#59091
+        gcoord = SpatialReference(4326)  # WGS84
+        mycoord = SpatialReference(23030)  # Proyección UTM ED50 Huso 30 N
+        trans = CoordTransform(mycoord, gcoord)
         # TODO: Do it in bulk way
-        for shapeRecs in self.sf.shapeRecords():
+        for shape in self.sf.shapeRecords():
             item = self.model()
-            for i, field in enumerate(self.fields, 1):
+            item.dataset = dataset
+            for i, field in enumerate(self.fields, 0):
                 ori, tgt = field
                 if tgt:
-                    setattr(item, tgt, shapeRecs.record[i])
-            item.dataset = dataset
+                    setattr(item, tgt, shape.record[i])
             #item.bbox = Polygon(shapeRecs.shape.bbox)
-            item.points = Polygon(shapeRecs.shape.points)
+            parts = list(shape.shape.parts) + [len(shape.shape.points)]
+            polygons = []
+            for it in zip(parts[:-1], parts[1:]):
+                polygons.append(Polygon(shape.shape.points[it[0]:it[1]]))
+            item.points = MultiPolygon(polygons)
+            item.points.transform(trans)
             item.save()  # TODO: Uncomment
 
 
@@ -78,9 +88,12 @@ class INEBaseImporter:
 
     def import_shp_file(self, filename):
         sf = self.get_shapefile_importer(filename)
-        if sf and not self.item.dataset:
+        if not sf:
+            return
+        dataset_name = os.path.basename(filename)
+        if not self.item.dataset.filter(name=dataset_name):
             dataset = DataSet(content_object=self.item)
-            dataset.name = os.path.basename(filename)
+            dataset.name = dataset_name
             dataset.author = self.author
             dataset.save()
             try:
@@ -88,6 +101,8 @@ class INEBaseImporter:
             except Exception as e:
                 log.exception("Importing filename '{}'".format(filename))
                 dataset.delete()
+        else:
+            log.debug("Dataset for resource '{}' is already loaded".format(self.item))
 
     def get_shapefile_importer(self, filename):
         raise NotImplementedError

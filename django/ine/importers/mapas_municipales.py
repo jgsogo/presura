@@ -32,11 +32,11 @@ class CCAA0103Importer(ShapefileImporter):
     pattern = [re.compile(r"ccaa0103c\d{2}.shp"), ]
     model = Municipality
     fields = [('OBJECTID', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('E20003_', None),
               ('E20003_ID', None),
-              ('NOMBRE03', None),
+              ('NOMBRE03', 'name'),
               ('PROV', None),
               ('MUN', None),
               ('Shape_Leng', None),
@@ -61,11 +61,11 @@ class CCAA99Importer(ShapefileImporter):
                re.compile(r"prov99p\d{2}.shp"), ]
     model = Municipality
     fields = [('OBJECTID', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('E20099_', None),
               ('E20099_ID', None),
-              ('NOMBRE99', None),
+              ('NOMBRE99', 'name'),
               ('Shape_Leng', None),
               ('Shape_Area', None),
               ('PROVMUN', None),
@@ -81,7 +81,7 @@ class PROV0104Importer(ShapefileImporter):
               ('Shape_Area', None),
               ('COM', None),
               ('PROVMUN', None),
-              ('NOMBRE04', None), ]
+              ('NOMBRE04', 'name'), ]
 
 
 class PROV0101Importer(ShapefileImporter):
@@ -89,15 +89,15 @@ class PROV0101Importer(ShapefileImporter):
                re.compile(r"esp_muni_0101.shp"), ]
     model = Municipality
     fields = [('OBJECTID', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('E20001_', None),
               ('E20001_ID', None),
               ('Shape_Leng', None),
               ('Shape_Area', None),
               ('COM', None),
               ('PROVMUN', None),
-              ('NOMBRE01', None), ]
+              ('NOMBRE01', 'name'), ]
 
 
 class CCAA0109Importer(ShapefileImporter):
@@ -114,29 +114,29 @@ class PROV0102Importer(ShapefileImporter):
                re.compile(r"esp_muni_0102.shp"), ]
     model = Municipality
     fields = [('OBJECTID', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('E20002_', None),
               ('E20002_ID', None),
               ('Shape_Leng', None),
               ('Shape_Area', None),
               ('COM', None),
               ('PROVMUN', None),
-              ('NOMBRE02', None), ]
+              ('NOMBRE02', 'name'), ]
 
 
 class CCAA0101Importer(ShapefileImporter):
     pattern = [re.compile(r"ccaa0101c\d{2}.shp"), ]
     model = Municipality
     fields = [('OBJECTID', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('E20001_', None),
               ('E20001_ID', None),
               ('Shape_Leng', None),
               ('Shape_Area', None),
               ('PROVMUN', None),
-              ('NOMBRE01', None), ]
+              ('NOMBRE01', 'name'), ]
 
 
 class PROV0103Importer(ShapefileImporter):
@@ -144,11 +144,11 @@ class PROV0103Importer(ShapefileImporter):
                re.compile(r"esp_muni_0103.shp"), ]
     model = Municipality
     fields = [('OBJECTID', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('E20003_', None),
               ('E20003_ID', None),
-              ('NOMBRE03', None),
+              ('NOMBRE03', 'name'),
               ('PROV', None),
               ('MUN', None),
               ('Shape_Leng', None),
@@ -164,7 +164,7 @@ class CCAA0104Importer(ShapefileImporter):
               ('Shape_Leng', None),
               ('Shape_Area', None),
               ('PROVMUN', None),
-              ('NOMBRE04', None), ]
+              ('NOMBRE04', 'name'), ]
 
 
 class PROV1101Importer(ShapefileImporter):
@@ -172,12 +172,12 @@ class PROV1101Importer(ShapefileImporter):
                re.compile(r"ccaa1101c\d{2}.shp"), ]
     model = Municipality
     fields = [('OBJECTID', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('E200NOV01_', None),
               ('E200NOV011', None),
               ('DEN01', None),
-              ('NOMBRE02', None),
+              ('NOMBRE02', 'name'),
               ('Shape_Leng', None),
               ('Shape_Area', None),
               ('PROVMUN', None), ]
@@ -187,11 +187,11 @@ class CCAA0102Importer(ShapefileImporter):
     pattern = [re.compile(r"ccaa0102c\d{2}.shp"), ]
     model = Municipality
     fields = [('OBJECTID', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('E20002_', None),
               ('E20002_ID', None),
-              ('NOMBRE02', None),
+              ('NOMBRE02', 'name'),
               ('Shape_Leng', None),
               ('Shape_Area', None),
               ('PROVMUN', None), ]
@@ -201,11 +201,11 @@ class SpainProvincesAg2Importer(ShapefileImporter):
     pattern = [re.compile(r"spain_provinces_ag_2.shp"), ]
     model = Municipality
     fields = [('OBJECTID', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('P20099_', None),
               ('P20099_ID', None),
-              ('NOMBRE99', None),
+              ('NOMBRE99', 'name'),
               ('SHAPE_LENG', None),
               ('SHAPE_AREA', None),
               ('PROV', None),
@@ -216,11 +216,11 @@ class SpainProvincesInd4Importer(ShapefileImporter):
     pattern = [re.compile(r"spain_provinces_ind_4.shp"), ]
     model = Municipality
     fields = [('OBJECTID', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('P20099_', None),
               ('P20099_ID', None),
-              ('NOMBRE99', None),
+              ('NOMBRE99', 'name'),
               ('Shape_Leng', None),
               ('Shape_Area', None),
               ('PROV', None),
@@ -234,11 +234,11 @@ class SpainRegionsImporter(ShapefileImporter):
                re.compile(r"spain_regions_ind_a.shp")]
     model = Municipality
     fields = [('OBJECTID', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('C20099_', None),
               ('C20099_ID', None),
-              ('NOMBRE99', None),
+              ('NOMBRE99', 'name'),
               ('SHAPE_LENG', None),
               ('SHAPE_AREA', None),
               ('COM', None)]
@@ -249,11 +249,11 @@ class SpainProvincesImporter(ShapefileImporter):
                re.compile(r"spain_provinces_img_ind_4.shp")]
     model = Municipality
     fields = [('OBJECTID', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('P00091_', None),
               ('P00091_ID', None),
-              ('NOMBRE99', None),
+              ('NOMBRE99', 'name'),
               ('SHAPE_LENG', None),
               ('SHAPE_AREA', None),
               ('PROV', None),
@@ -264,11 +264,11 @@ class SpainMuniImporter(ShapefileImporter):
     pattern = [re.compile(r"esp_muni_00.shp"), ]
     model = Municipality
     fields = [('OBJECTID_1', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('E20000_12', None),
               ('E20000_ID_', None),
-              ('MUNICIPIO0', None),
+              ('MUNICIPIO0', 'name'),
               ('SHAPE_LE_1', None),
               ('Shape_Leng', None),
               ('Shape_Area', None),
@@ -281,11 +281,11 @@ class SpainRegions91Importer(ShapefileImporter):
                re.compile(r"spain_regions_img_ind.shp"), ]
     model = Municipality
     fields = [('OBJECTID', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('C00091_', None),
               ('C00091_ID', None),
-              ('NOMBRE', None),
+              ('NOMBRE', 'name'),
               ('SHAPE_LENG', None),
               ('SHAPE_AREA', None),
               ('COM', None), ]
@@ -295,11 +295,11 @@ class SpainMuni99Importer(ShapefileImporter):
     pattern = [re.compile(r"esp_muni_99.shp"), ]
     model = Municipality
     fields = [('OBJECTID', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('E20099_', None),
               ('E20099_ID', None),
-              ('NOMBRE99', None),
+              ('NOMBRE99', 'name'),
               ('Shape_Leng', None),
               ('Shape_Area', None),
               ('PROVMUN', None), ]
@@ -309,11 +309,11 @@ class SpainProvinces2Importer(ShapefileImporter):
     pattern = [re.compile(r"spain_provinces_ind_2.shp"), ]
     model = Municipality
     fields = [('OBJECTID', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('P20099_', None),
               ('P20099_ID', None),
-              ('NOMBRE99', None),
+              ('NOMBRE99', 'name'),
               ('Shape_Leng', None),
               ('Shape_Area', None),
               ('PROV', None),
@@ -324,11 +324,11 @@ class SpainProvincesImg2Importer(ShapefileImporter):
     pattern = [re.compile(r"spain_provinces_img_ind_2.shp"), ]
     model = Municipality
     fields = [('OBJECTID', None),
-              ('AREA', None),
-              ('PERIMETER', None),
+              ('AREA', 'area'),
+              ('PERIMETER', 'perimeter'),
               ('P00091_', None),
               ('P00091_ID', None),
-              ('NOMBRE99', None),
+              ('NOMBRE99', 'name'),
               ('Shape_Leng', None),
               ('Shape_Area', None),
               ('PROV', None),

@@ -50,6 +50,9 @@ class DownloadLog(models.Model):
     class Meta:
         ordering = ['-timestamp']
 
+    def __str__(self):
+        return "{} (@{})".format(self.resource, self.timestamp)
+
     def delete(self, *args, **kwargs):
         self.delete_file(commit=False)
         super(DownloadLog, self).delete(*args, **kwargs)

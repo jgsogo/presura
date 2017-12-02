@@ -15,6 +15,9 @@ class Author(models.Model):
     type = models.IntegerField(_('type'), choices=TYPE, blank=True, null=True)
     url = models.URLField(_('url'), blank=True, null=True)
 
+    def __str__(self):
+        return self.name
+
 
 class DataSet(models.Model):
     name = models.CharField(_('name'), max_length=255)
@@ -30,3 +33,6 @@ class DataSet(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
+
+    def __str__(self):
+        return self.name

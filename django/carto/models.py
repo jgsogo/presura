@@ -18,15 +18,24 @@ class ShapeItem(models.Model):
 class Country(ShapeItem):
     name = models.CharField(max_length=40)
 
+    def __str__(self):
+        return self.name
+
 
 class CCAA(ShapeItem):
     name = models.CharField(max_length=60)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
+
 
 class Province(ShapeItem):
     name = models.CharField(max_length=120)
     province = models.ForeignKey(CCAA, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
 
 
 class Municipality(ShapeItem):
@@ -34,3 +43,5 @@ class Municipality(ShapeItem):
     province = models.ForeignKey(Province, on_delete=models.CASCADE, blank=True, null=True)
     ccaa = models.ForeignKey(CCAA, on_delete=models.CASCADE, blank=True, null=True)
 
+    def __str__(self):
+        return self.name
