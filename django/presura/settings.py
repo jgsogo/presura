@@ -41,7 +41,7 @@ INSTALLED_APPS = [
 
     'ine',
     'carto',
-    # 'datasets',
+    'datasets',
 ]
 
 MIDDLEWARE = [

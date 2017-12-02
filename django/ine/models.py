@@ -9,6 +9,8 @@ from django.utils.text import slugify
 
 from model_utils import Choices
 
+from .importers import importers_factory
+
 log = logging.getLogger(__name__)
 
 
@@ -25,7 +27,9 @@ class Resource(models.Model):
     type = models.IntegerField(choices=TYPE)
     url = models.URLField()
     available = models.BooleanField(default=True)
-    importer = models.CharField(_('importer'), max_length=20)
+    importer = models.CharField(_('importer'), max_length=20,
+                                choices=[(id, id) for id in importers_factory.ids()],
+                                blank=True, null=True)
 
     objects = ResourceManager()
 

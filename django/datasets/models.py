@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext as _
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 from model_utils import Choices
 
@@ -25,3 +27,6 @@ class DataSet(models.Model):
     url = models.DateField(_('url'), blank=True, null=True)
 
     # TODO: May add contenttype to link to a table inside this project.
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')

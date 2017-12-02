@@ -1,8 +1,11 @@
 
 from django.contrib.gis.db import models
+from datasets.models import DataSet
 
 
 class ShapeItem(models.Model):
+    dataset = models.ForeignKey(DataSet, on_delete=models.CASCADE)
+
     area = models.FloatField()
     perimeter = models.FloatField()
     #bbox = models.PolygonField()

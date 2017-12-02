@@ -7,8 +7,8 @@ import logging
 import tempfile
 import zipfile
 import shutil
-from ine.models import DownloadLog
 from django.contrib.gis.geos import Point, Polygon
+from datasets.models import Author, DataSet
 
 log = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ class ShapefileImporter:
         for it, i in enumerate(self.sf.fields[1:], 0):
             assert it[0] == self.fields[i], "Fields in file and those defined mismatch"
 
-    def import_all(self):
+    def import_all(self, dataset):
         # TODO: Do it in bulk way
         for shapeRecs in self.sf.shapeRecords():
             item = self.model()
@@ -33,22 +33,26 @@ class ShapefileImporter:
                 ori, tgt = field
                 if tgt:
                     setattr(item, tgt, shapeRecs.record[i])
+            item.dataset = dataset
             #item.bbox = Polygon(shapeRecs.shape.bbox)
             # item.points = Polygon(shapeRecs.shape.points)
             # item.save() # TODO: Uncomment
 
 
-class BaseImporter:
+class INEBaseImporter:
     id = None
 
     def __init__(self, download_log):
         self.item = download_log
+        self.author, _ = Author.objects.get_or_create(name="INE",
+                                                      type=Author.TYPE.institution,
+                                                      url="http://www.ine.es/")
 
     def run(self):
         # Extract
         tmp_folder = tempfile.mkdtemp()
-        log.debug("Extract '{}' to temporary folder '{}'".format(self.item.filename, tmp_folder))
         try:
+            log.debug("Extract '{}' to temporary folder '{}'".format(self.item.filename, tmp_folder))
             assert zipfile.is_zipfile(self.item.filename)
             with zipfile.ZipFile(self.item.filename) as f:
                 if not os.path.exists(tmp_folder):
@@ -68,11 +72,17 @@ class BaseImporter:
         finally:
             import time
             time.sleep(1)
+            log.debug("Remove tmp folder '{}'".format(tmp_folder))
             shutil.rmtree(tmp_folder)
 
     def import_shp_file(self, filename):
         sf = self.get_shapefile_importer(filename)
-        sf.import_all()
+        dataset, created = DataSet.objects.get_or_create(content_object=self.item)
+        if created:
+            dataset.name = os.path.basename(filename)
+            dataset.author = self.author
+            dataset.save()
+            sf.import_all(dataset)
 
     def get_shapefile_importer(self, filename):
         raise NotImplementedError
