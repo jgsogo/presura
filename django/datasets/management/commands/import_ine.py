@@ -14,8 +14,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         filenames = options["filenames"]
 
+        cmd = Commandline.objects.new()
+        cmd.info = "import_ine {}".format(' '.format(filenames))
+        cmd.save()
+
         for filename in filenames:
-            cmd = Commandline.objects.new()
-            cmd.info = "import_ine {}".format(filename)
-            cmd.save()
             ine.import_resource(filename, cmd)
