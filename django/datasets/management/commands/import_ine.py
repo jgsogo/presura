@@ -6,7 +6,7 @@ from datasets.models import Commandline
 
 
 class Command(BaseCommand):
-    help = 'Import dataset from INE resource (ini file)'
+    help = 'Import dataset from INE resource (.ini file)'
 
     def add_arguments(self, parser):
         parser.add_argument('filenames', nargs='+', type=str)

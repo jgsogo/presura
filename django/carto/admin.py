@@ -1,14 +1,11 @@
 from django.contrib.gis import admin
 
-from .models import Country, CCAA, Province, Municipality
+from .models import Layer
 
 
-class MunicipalityAdmin(admin.ModelAdmin):
-    list_display = ('name', 'province', 'ccaa', 'dataset',)
+class LayerAdmin(admin.ModelAdmin):
+    list_display = ('name', 'dataset',)
     search_fields = ('name',)
 
 
-admin.site.register(Country)
-admin.site.register(CCAA)
-admin.site.register(Province)
-admin.site.register(Municipality, MunicipalityAdmin)
+admin.site.register(Layer, LayerAdmin)

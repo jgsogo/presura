@@ -19,5 +19,4 @@ class Command(BaseCommand):
         n = qs.count()
         for idx, dataset in enumerate(qs, 1):
             self.stdout.write("[{}/{}] {}".format(idx, n, dataset))
-            dataset.save_plot()
             dataset.save()

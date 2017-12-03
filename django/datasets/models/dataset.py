@@ -8,6 +8,7 @@ from django.contrib.postgres.fields import ArrayField
 
 from datasets.models.author import Author
 from datasets.models._plottable import PlottableCached
+from datasets.utils import plottable
 
 
 class DataSet(PlottableCached):
@@ -40,4 +41,5 @@ class DataSet(PlottableCached):
         return str(self)
 
     def get_shapes(self):
-        return self.shape_set.all()
+        for shape in self.shape_set.all():
+            yield plottable.ShapeLine(shape.polygons.srid, shape.polygons)

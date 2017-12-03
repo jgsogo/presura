@@ -13,31 +13,43 @@ log = logging.getLogger(__name__)
 class Shape:
     srid = None
     shape = None
-    color = None
 
-    """
-    def __init__(self, shape, srid):
+    def __init__(self, srid, shape):
+        self.spatial_ref = SpatialReference(srid)
         self.shape = shape
-        self.spatial_reference = SpatialReference(srid)
 
-    def transform(self, target_reference, clone=True):
-        trans = CoordTransform(self.spatial_reference, target_reference)
-        self.shape.transform(trans, clone=clone)
-    """
+    def plot(self, target_reference, *args, **kwargs):
+        raise NotImplementedError("Shape is abstract")
 
-    def plot(self, lw, target_reference, facecolor=None):
-        spatial_ref = SpatialReference(self.srid)
-        trans = CoordTransform(spatial_ref, target_reference)
+
+class ShapeLine(Shape):
+    color = None
+    lw = None
+
+    def plot(self, target_reference, lw=None, facecolor=None):
+        trans = CoordTransform(self.spatial_ref, target_reference)
         for poly in self.shape:
             poly.transform(trans)
             x = [it[0] for it in poly.coords[0]]
             y = [it[1] for it in poly.coords[0]]
-            plt.plot(x, y, lw=lw, c=facecolor or self.color)
+            plt.plot(x, y, lw=lw or self.lw, c=facecolor or self.color)
+
+
+class ShapePolygon(Shape):
+    color = None
+
+    def plot(self, target_reference, *args, **kwargs):
+        trans = CoordTransform(self.spatial_ref, target_reference)
+        self.shape.transform(trans)
+        for poly in self.shape:
+            x = [it[0] for it in poly.coords[0]]
+            y = [it[1] for it in poly.coords[0]]
+            plt.fill_between(x, y)
 
 
 class Plottable:
     shapes = None
-    colormap = 'hsv'
+    # colormap = 'hsv'
 
     def get_shapes(self):
         if self.shapes:
@@ -68,28 +80,3 @@ class Plottable:
         fig.savefig(figure, format='png', dpi=dpi)
         plt.close()
         return figure
-
-        """
-        gcoord = SpatialReference(4326)  # WGS84
-        mycoord = SpatialReference(23030)  # Proyección UTM ED50 Huso 30 N
-        trans = CoordTransform(gcoord, mycoord)
-
-        log.debug("Plot image for dataset '{}'".format(self.name))
-        figure = io.BytesIO()
-        fig = plt.figure()
-        plt.axis('equal')
-        plt.axis('off')
-        for municipality in self.municipality_set.all():
-            for poly in municipality.points:
-                poly.transform(trans)
-                x = [it[0] for it in poly.coords[0]]
-                y = [it[1] for it in poly.coords[0]]
-                plt.plot(x, y, lw=self.image_line)
-        fig.suptitle(self.name)
-        fig.savefig(figure, format='png', dpi=self.image_dpi)
-        plt.close()
-
-        self.image.delete()
-        filename = "{}.png".format(self.name) if settings.DEBUG else str(uuid.uuid4())
-        self.image.save(filename, ImageFile(figure))
-        """
