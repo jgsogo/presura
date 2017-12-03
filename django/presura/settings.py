@@ -41,7 +41,7 @@ INSTALLED_APPS = [
 
     'django.contrib.admindocs',
 
-    # 'ine',
+    'ine',
     # 'carto',
     'datasets',
 ]
