@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Author, DataSet
+from .models import Author, DataSet, Shape, Commandline
 
 
 class AuthorAdmin(admin.ModelAdmin):
@@ -10,9 +10,9 @@ class AuthorAdmin(admin.ModelAdmin):
 
 
 class DataSetAdmin(admin.ModelAdmin):
-    list_display = ('author', 'name', 'license', 'is_public',)
-    list_filter = ('license', 'is_public',)
-    search_fields = ('name', 'author',)
+    list_display = ('author', 'name', 'license', 'is_public', 'published')
+    list_filter = ('license', 'is_public', 'published',)
+    search_fields = ('name', 'author__name',)
     readonly_fields = ('image_tag',)
 
     def image_tag(self, obj):
@@ -20,5 +20,17 @@ class DataSetAdmin(admin.ModelAdmin):
     image_tag.short_description = 'ImageTag'
 
 
+class ShapeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'key',)
+    search_fields = ('name', 'dataset__name')
+
+
+class CommandlineAdmin(admin.ModelAdmin):
+    list_display = ('user', 'hostname')
+    list_filter = ('datetime',)
+
+
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(DataSet, DataSetAdmin)
+admin.site.register(Shape, ShapeAdmin)
+admin.site.register(Commandline, CommandlineAdmin)

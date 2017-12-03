@@ -41,8 +41,8 @@ INSTALLED_APPS = [
 
     'django.contrib.admindocs',
 
-    'ine',
-    'carto',
+    # 'ine',
+    # 'carto',
     'datasets',
 ]
 
@@ -83,7 +83,7 @@ WSGI_APPLICATION = 'presura.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'presura',
+        'NAME': 'presura2',
         'USER': 'presura',
         'PASSWORD': 'presura',
         'HOST': '127.0.0.1',
@@ -140,6 +140,10 @@ LOGGING = {
     },
     'loggers': {
         'ine': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
+        },
+        'datasets': {
             'handlers': ['console'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
         },
