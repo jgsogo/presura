@@ -6,6 +6,8 @@ import matplotlib
 matplotlib.use('Agg')
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 import matplotlib.pyplot as plt
+from matplotlib.patches import Circle, Wedge, Polygon
+from matplotlib.collections import PatchCollection
 
 log = logging.getLogger(__name__)
 
@@ -41,10 +43,7 @@ class ShapePolygon(Shape):
     def plot(self, target_reference, *args, **kwargs):
         trans = CoordTransform(self.spatial_ref, target_reference)
         self.shape.transform(trans)
-        for poly in self.shape:
-            x = [it[0] for it in poly.coords[0]]
-            y = [it[1] for it in poly.coords[0]]
-            plt.fill_between(x, y)
+        return [Polygon(poly.coords[0], True) for poly in self.shape]
 
 
 class Plottable:
@@ -61,18 +60,27 @@ class Plottable:
 
         tgt_reference = SpatialReference(tgt_srid)
 
+        patches = []
         shapes = self.get_shapes()
         # cmap = plt.cm.get_cmap(self.colormap, len(shapes))
         for i, shape in enumerate(shapes):
             # facecolor = cmap(i)
-            shape.plot(lw=lw, target_reference=tgt_reference)
+            patches += shape.plot(lw=lw, target_reference=tgt_reference)
+        return patches
 
     def savefig(self, tgt_srid, title=None, dpi=300, lw=0.3):
         log.debug("Plottable::savefig(tgt_srid='{}', title='{}', dpi={}, lw={})".format(tgt_srid, title, dpi, lw))
-        fig = plt.figure()
+        fig, ax = plt.subplots()
+        patches = self.plot(fig, tgt_srid, lw=lw)
+        import numpy as np
+        colors = 100 * np.random.rand(len(patches))
+        p = PatchCollection(patches, alpha=0.4)
+        p.set_array(np.array(colors))
+        ax.add_collection(p)
+        fig.colorbar(p, ax=ax)
         plt.axis('equal')
         plt.axis('off')
-        self.plot(fig, tgt_srid, lw=lw)
+
         if title:
             fig.suptitle(title)
 
