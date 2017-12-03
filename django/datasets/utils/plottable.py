@@ -13,6 +13,7 @@ log = logging.getLogger(__name__)
 class Shape:
     srid = None
     shape = None
+    color = None
 
     """
     def __init__(self, shape, srid):
@@ -24,14 +25,14 @@ class Shape:
         self.shape.transform(trans, clone=clone)
     """
 
-    def plot(self, facecolor, lw, target_reference):
+    def plot(self, lw, target_reference, facecolor=None):
         spatial_ref = SpatialReference(self.srid)
         trans = CoordTransform(spatial_ref, target_reference)
         for poly in self.shape:
             poly.transform(trans)
             x = [it[0] for it in poly.coords[0]]
             y = [it[1] for it in poly.coords[0]]
-            plt.plot(x, y, lw=lw, c=facecolor)
+            plt.plot(x, y, lw=lw, c=facecolor or self.color)
 
 
 class Plottable:
@@ -49,10 +50,10 @@ class Plottable:
         tgt_reference = SpatialReference(tgt_srid)
 
         shapes = self.get_shapes()
-        cmap = plt.cm.get_cmap(self.colormap, len(shapes))
+        # cmap = plt.cm.get_cmap(self.colormap, len(shapes))
         for i, shape in enumerate(shapes):
-            facecolor = cmap(i)
-            shape.plot(facecolor=facecolor, lw=lw, target_reference=tgt_reference)
+            # facecolor = cmap(i)
+            shape.plot(lw=lw, target_reference=tgt_reference)
 
     def savefig(self, tgt_srid, title=None, dpi=300, lw=0.3):
         log.debug("Plottable::savefig(tgt_srid='{}', title='{}', dpi={}, lw={})".format(tgt_srid, title, dpi, lw))

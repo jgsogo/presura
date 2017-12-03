@@ -4,6 +4,7 @@ import os
 import logging
 import configparser
 import shapefile
+import platform
 from datetime import datetime
 
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
@@ -20,6 +21,13 @@ trans = CoordTransform(mycoord, gcoord)
 
 def _to_str(name):
     return name if not isinstance(name, bytes) else name.decode('latin-1')
+
+
+def _get_modification_date(filename):
+    if platform.system() == 'Windows':
+        return datetime.fromtimestamp(os.path.getmtime(filename))
+    else:
+        return None
 
 
 def get_author():
@@ -67,12 +75,12 @@ def import_resource(resource_path, db_obj_associated):
         raise ValueError("INE importer requires a INI file. Cannot find or open '{}'".format(ini_file))
 
     config = configparser.ConfigParser()
-    config.read(ini_file)
+    config.read(ini_file, encoding='latin-1')
 
     # Iterate through MAPS section
     maps = config["MAPS"]
     for it in range(1, 1 + int(maps['NumMaps'])):
-        it_map = os.path.basename(maps[str(it)])
+        it_map = maps[str(it)].rsplit('\\', 1)[1]
         map_filename = os.path.join(path, it_map)
         map_section = config["FIELDS{}".format(str(it))]
 
@@ -84,7 +92,7 @@ def import_resource(resource_path, db_obj_associated):
         dataset.key_field_name = map_section["KeyPField"]
         dataset.name_field = map_section["NameField"]
         dataset.name_field_name = map_section["NamePField"]
-        dataset.published = datetime.fromtimestamp(os.path.getmtime(map_filename))
+        dataset.published = _get_modification_date(map_filename)
 
         dataset = import_map(map_filename, dataset)
         dataset.save_plot()

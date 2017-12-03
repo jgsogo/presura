@@ -22,7 +22,7 @@ class PlottableCached(Plottable, models.Model):
         abstract = True
 
     def save(self, skip_plot=False, *args, **kwargs):
-        if not skip_plot:
+        if not self.image and not skip_plot:
             self.save_plot()
         super(PlottableCached, self).save(*args, **kwargs)
 
