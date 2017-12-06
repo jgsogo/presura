@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Author, Map, Shape, Commandline
+from .models import Author, Map, Shape, Commandline, Padron, \
+    PadronMunicipios, PadronCCAA
 
 
 class AuthorAdmin(admin.ModelAdmin):
@@ -30,7 +31,22 @@ class CommandlineAdmin(admin.ModelAdmin):
     list_filter = ('datetime',)
 
 
+class PadronAdmin(admin.ModelAdmin):
+    list_display = ('author', 'name', 'map_type', 'license', 'is_public', 'published')
+    list_filter = ('license', 'is_public', 'published',)
+    search_fields = ('name', 'author__name',)
+
+
+class PadronItemAdmin(admin.ModelAdmin):
+    list_display = ('padron', 'name',)
+    list_filter = ('padron',)
+    search_fields = ('municipio',)
+
+
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Map, DataSetAdmin)
 admin.site.register(Shape, ShapeAdmin)
 admin.site.register(Commandline, CommandlineAdmin)
+admin.site.register(Padron, PadronAdmin)
+admin.site.register(PadronMunicipios, PadronItemAdmin)
+admin.site.register(PadronCCAA, PadronItemAdmin)

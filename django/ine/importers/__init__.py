@@ -2,13 +2,14 @@
 
 import logging
 from .mapas_municipales import MapasMunicipales
+from .padron_municipal import PadronMunicipal
 
 
 log = logging.getLogger(__name__)
 
 
 class ImportersFactory:
-    all = [MapasMunicipales, ]
+    all = [MapasMunicipales, PadronMunicipal, ]
 
     def ids(self):
         return [it.id for it in self.all]

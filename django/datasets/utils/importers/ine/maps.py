@@ -93,6 +93,7 @@ def import_resource(resource_path, db_obj_associated):
         map.name_field = map_section["NameField"]
         map.name_field_name = map_section["NamePField"]
         map.published = _get_modification_date(map_filename)
+        map.dataset_key = it_map
 
         map = import_map(map_filename, map)
         map.save_plot()
