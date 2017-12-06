@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from .author import Author
-from .dataset import DataSet
+from .map import Map
 from .shape import Shape
 from .commandline import Commandline

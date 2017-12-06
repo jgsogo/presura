@@ -10,7 +10,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 
 from model_utils import Choices
 
-from datasets.models import DataSet
+from datasets.models import Map
 from .importers import importers_factory
 
 log = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ class DownloadLog(models.Model):
     filename = models.FilePathField(path=settings.INE_RESOURCES, editable=False)
     deleted = models.BooleanField(default=False)
 
-    dataset = GenericRelation(DataSet)
+    dataset = GenericRelation(Map)
 
     class Meta:
         ordering = ['-timestamp']

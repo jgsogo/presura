@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Author, DataSet, Shape, Commandline
+from .models import Author, Map, Shape, Commandline
 
 
 class AuthorAdmin(admin.ModelAdmin):
@@ -31,6 +31,6 @@ class CommandlineAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Author, AuthorAdmin)
-admin.site.register(DataSet, DataSetAdmin)
+admin.site.register(Map, DataSetAdmin)
 admin.site.register(Shape, ShapeAdmin)
 admin.site.register(Commandline, CommandlineAdmin)

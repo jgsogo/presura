@@ -11,7 +11,7 @@ from datasets.models._plottable import PlottableCached
 from datasets.utils import plottable
 
 
-class DataSet(PlottableCached):
+class Map(PlottableCached):
     # Basic information
     name = models.CharField(_('name'), max_length=255)
     author = models.ForeignKey(_('author'), Author, blank=True, null=True)

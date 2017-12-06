@@ -10,7 +10,7 @@ from datetime import datetime
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.contrib.gis.geos import Polygon, MultiPolygon
 
-from datasets.models import Author, DataSet, Shape
+from datasets.models import Author, Map, Shape
 
 log = logging.getLogger(__name__)
 
@@ -37,18 +37,18 @@ def get_author():
     return author
 
 
-def import_map(map_filename, dataset):
+def import_map(map_filename, map):
     log.info("INE::import_map(map_filename='{}')".format(map_filename))
     sf = shapefile.Reader(map_filename)
-    dataset.fields = [it[0] for it in sf.fields[1:]]
-    dataset.save(skip_plot=True)  # Need it to be created to associate Shapes
+    map.fields = [it[0] for it in sf.fields[1:]]
+    map.save(skip_plot=True)  # Need it to be created to associate Shapes
 
-    key_field_pos = dataset.fields.index(dataset.key_field)
-    name_field_pos = dataset.fields.index(dataset.name_field)
+    key_field_pos = map.fields.index(map.key_field)
+    name_field_pos = map.fields.index(map.name_field)
 
     for shape in sf.shapeRecords():
         item = Shape()
-        item.dataset = dataset
+        item.map = map
         item.key = shape.record[key_field_pos]
         item.name = _to_str(shape.record[name_field_pos])
         item.rawData = shape.record[:]
@@ -61,7 +61,7 @@ def import_map(map_filename, dataset):
         item.polygons.transform(trans)
         item.save()
 
-    return dataset
+    return map
 
 
 def import_resource(resource_path, db_obj_associated):
@@ -84,17 +84,17 @@ def import_resource(resource_path, db_obj_associated):
         map_filename = os.path.join(path, it_map)
         map_section = config["FIELDS{}".format(str(it))]
 
-        # Generate dataset
-        dataset = DataSet(content_object=db_obj_associated)
-        dataset.name = map_section["MapName"]
-        dataset.author = get_author()
-        dataset.key_field = map_section["KeyField"]
-        dataset.key_field_name = map_section["KeyPField"]
-        dataset.name_field = map_section["NameField"]
-        dataset.name_field_name = map_section["NamePField"]
-        dataset.published = _get_modification_date(map_filename)
+        # Generate map
+        map = Map(content_object=db_obj_associated)
+        map.name = map_section["MapName"]
+        map.author = get_author()
+        map.key_field = map_section["KeyField"]
+        map.key_field_name = map_section["KeyPField"]
+        map.name_field = map_section["NameField"]
+        map.name_field_name = map_section["NamePField"]
+        map.published = _get_modification_date(map_filename)
 
-        dataset = import_map(map_filename, dataset)
-        dataset.save_plot()
-        dataset.save()
+        map = import_map(map_filename, map)
+        map.save_plot()
+        map.save()
 
