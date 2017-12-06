@@ -5,14 +5,15 @@ import logging
 import itertools
 from datetime import datetime
 import datasets.utils.importers.px_reader as px_reader
-from datasets.models import Padron, Author, PadronMunicipios, PadronCCAA
+from datasets.models import Padron, Author, \
+    PadronMunicipios, PadronCCAA, PadronProvincias, PadronIslas, PadronCapitalProvincia
 
 log = logging.getLogger(__name__)
 
 
 def _str_to_int(s):
     try:
-        return int(s)
+        return int(float(s.strip()))
     except ValueError:
         return None
 
@@ -47,19 +48,18 @@ def _import_padron(padron, px_obj, categories, PadronItemModel):
         item.save()
 
 
-def import_padron_municipal(padron, px_obj):
+def import_padron_by_sex(padron, px_obj, PadronItemModel):
     # Get items to iterate data
     cat_axis = list(px_obj.values.keys())[1]
     sexos = ['total', 'men', 'women']
     assert px_obj.values[cat_axis] == ['Total', 'Hombres', 'Mujeres']
-    _import_padron(padron, px_obj, sexos, PadronMunicipios)
+    _import_padron(padron, px_obj, sexos, PadronItemModel)
 
 
 def import_padron_ccaa(padron, px_obj):
     cat_axis = list(px_obj.values.keys())[1]
-    categories = ['total', ] + [None]*13
-    print(px_obj.values[cat_axis])
-    assert px_obj.values[cat_axis] == ['Total', 'Menos de 101 ', 'De 101 a 500 ', 'De 501 a 1.000', 'De 1.001 a 2.000 ', 'De 2.001 a 3.000 ', 'De 3.001 a 5.000 ', 'De 5.001 a 10.000 ', 'De 10.001 a 20.000 ', 'De 20.001 a 30.000 ', 'De 30.001 a 50.000 ', 'De 50.001 a 100.000 ', 'De 100.001 a 500.000 ', 'Más de 500.000 ']
+    file_categories = px_obj.values[cat_axis]
+    categories = ['total', ] + [None]*(len(file_categories)-1)
     _import_padron(padron, px_obj, categories, PadronCCAA)
 
 
@@ -80,9 +80,27 @@ def import_pcaxis(resource_path, db_obj_associated):
     padron.years = [int(y) for y in px_obj.values["Periodo"]]
     padron.save()
 
-    if padron.map_type == "Municipios":
-        import_padron_municipal(padron, px_obj)
-    elif padron.map_type == "Comunidades y Ciudades Autónomas":
-        import_padron_ccaa(padron, px_obj)
-    else:
+    try:
+        if padron.map_type == "Municipios":
+            import_padron_by_sex(padron, px_obj, PadronMunicipios)
+        elif padron.map_type == "Comunidades y Ciudades Autónomas":
+            import_padron_ccaa(padron, px_obj)
+        elif padron.map_type == "Provincias":
+            cat_axis = list(px_obj.values.keys())[1]
+            if cat_axis == "Sexo":
+                import_padron_by_sex(padron, px_obj, PadronProvincias)
+            else:
+                raise ValueError
+        elif padron.map_type == "Islas":
+            import_padron_by_sex(padron, px_obj, PadronIslas)
+        elif padron.map_type == "Capitales de provincia":
+            import_padron_by_sex(padron, px_obj, PadronCapitalProvincia)
+        else:
+            raise ValueError
+    except Exception as e:
+        cat_axis = list(px_obj.values.keys())[1]
+        file_categories = px_obj.values[cat_axis]
         log.error("Map_type '{}' not handled".format(padron.map_type))
+        log.info("Values: '{}'".format(px_obj.values))
+        log.info("Categories: '{}'".format(', '.join(file_categories)))
+        log.exception("Exception")

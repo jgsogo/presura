@@ -48,13 +48,64 @@ class PadronMunicipios(PadronItem):
     women = ArrayField(models.PositiveIntegerField(blank=True, null=True))
 
     def __str__(self):
-        return "{} - {}".format(self.municipio, self.year)
+        return self.municipio
 
     def name(self):
         return self.municipio
 
     def set_key(self, value):
         self.municipio = value
+
+
+class PadronProvincias(PadronItem):
+    provincia = models.CharField(max_length=120)
+
+    # Drill down
+    men = ArrayField(models.PositiveIntegerField(blank=True, null=True))
+    women = ArrayField(models.PositiveIntegerField(blank=True, null=True))
+
+    def __str__(self):
+        return self.provincia
+
+    def name(self):
+        return self.provincia
+
+    def set_key(self, value):
+        self.provincia = value
+
+
+class PadronIslas(PadronItem):
+    isla = models.CharField(max_length=120)
+
+    # Drill down
+    men = ArrayField(models.PositiveIntegerField(blank=True, null=True))
+    women = ArrayField(models.PositiveIntegerField(blank=True, null=True))
+
+    def __str__(self):
+        return self.isla
+
+    def name(self):
+        return self.isla
+
+    def set_key(self, value):
+        self.isla = value
+
+
+class PadronCapitalProvincia(PadronItem):
+    ciudad = models.CharField(max_length=120)
+
+    # Drill down
+    men = ArrayField(models.PositiveIntegerField(blank=True, null=True))
+    women = ArrayField(models.PositiveIntegerField(blank=True, null=True))
+
+    def __str__(self):
+        return self.ciudad
+
+    def name(self):
+        return self.ciudad
+
+    def set_key(self, value):
+        self.ciudad = value
 
 
 class PadronCCAA(PadronItem):

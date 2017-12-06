@@ -4,4 +4,5 @@ from .author import Author
 from .map import Map
 from .shape import Shape
 from .commandline import Commandline
-from .padron import Padron, PadronMunicipios, PadronCCAA
+from .padron import Padron, PadronMunicipios, \
+    PadronCCAA, PadronProvincias, PadronIslas, PadronCapitalProvincia

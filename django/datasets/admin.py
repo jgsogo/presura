@@ -32,15 +32,14 @@ class CommandlineAdmin(admin.ModelAdmin):
 
 
 class PadronAdmin(admin.ModelAdmin):
-    list_display = ('author', 'name', 'map_type', 'license', 'is_public', 'published')
-    list_filter = ('license', 'is_public', 'published',)
+    list_display = ('author', 'name', 'map_type', 'map', 'license', 'is_public', 'published')
+    list_filter = ('map_type', 'license', 'is_public', 'published',)
     search_fields = ('name', 'author__name',)
 
 
 class PadronItemAdmin(admin.ModelAdmin):
-    list_display = ('padron', 'name',)
-    list_filter = ('padron',)
-    search_fields = ('municipio',)
+    list_display = ('name', 'total',)
+    search_fields = ('padron__name',)
 
 
 admin.site.register(Author, AuthorAdmin)
