@@ -28,8 +28,9 @@ class Layer(plottable.Plottable, models.Model):
         return self.name
 
     def get_shapes(self):
+        WrapperModel = plottable.ShapePolygon if self.draw_type == Layer.DRAW_TYPE.fill else plottable.ShapeLine
         for shape in self.dataset.shape_set.all():
-            yield plottable.ShapePolygon(shape.polygons.srid, shape.polygons)
+            yield WrapperModel(shape.polygons.srid, shape.polygons)
 
     def save_image(self, filename):
         bytes = self.savefig(tgt_srid=self.spatial_reference, title=self.name)

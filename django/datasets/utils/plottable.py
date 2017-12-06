@@ -2,8 +2,11 @@
 
 import io
 import logging
+import numpy as np
+
 import matplotlib
 matplotlib.use('Agg')
+
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, Wedge, Polygon
@@ -11,6 +14,7 @@ from matplotlib.collections import PatchCollection
 
 log = logging.getLogger(__name__)
 
+# TODO: Drawing rectangles... http://matthiaseisen.com/pp/patterns/p0203/
 
 class Shape:
     srid = None
@@ -28,13 +32,11 @@ class ShapeLine(Shape):
     color = None
     lw = None
 
-    def plot(self, target_reference, lw=None, facecolor=None):
+    def plot(self, target_reference, *args, **kwargs):
         trans = CoordTransform(self.spatial_ref, target_reference)
+        self.shape.transform(trans)
         for poly in self.shape:
-            poly.transform(trans)
-            x = [it[0] for it in poly.coords[0]]
-            y = [it[1] for it in poly.coords[0]]
-            plt.plot(x, y, lw=lw or self.lw, c=facecolor or self.color)
+            yield Polygon(poly.coords[0], closed=True, fill=False)
 
 
 class ShapePolygon(Shape):
@@ -43,7 +45,7 @@ class ShapePolygon(Shape):
     def plot(self, target_reference, *args, **kwargs):
         trans = CoordTransform(self.spatial_ref, target_reference)
         self.shape.transform(trans)
-        return [Polygon(poly.coords[0], True) for poly in self.shape]
+        return [Polygon(poly.coords[0], closed=True, fill=True) for poly in self.shape]
 
 
 class Plottable:
@@ -72,12 +74,17 @@ class Plottable:
         log.debug("Plottable::savefig(tgt_srid='{}', title='{}', dpi={}, lw={})".format(tgt_srid, title, dpi, lw))
         fig, ax = plt.subplots()
         patches = self.plot(fig, tgt_srid, lw=lw)
-        import numpy as np
+
+        for p in patches:
+            ax.add_patch(p)
+        """
         colors = 100 * np.random.rand(len(patches))
-        p = PatchCollection(patches, alpha=0.4)
+        p = PatchCollection(patches)  #, alpha=0.4)
         p.set_array(np.array(colors))
         ax.add_collection(p)
         fig.colorbar(p, ax=ax)
+        """
+
         plt.axis('equal')
         plt.axis('off')
 
