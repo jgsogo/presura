@@ -4,7 +4,7 @@ from .models import Layer
 
 
 class LayerAdmin(admin.ModelAdmin):
-    list_display = ('name', 'dataset',)
+    list_display = ('name', 'basemap', 'data', 'category', 'period',)
     search_fields = ('name',)
 
 

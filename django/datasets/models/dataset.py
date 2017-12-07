@@ -26,5 +26,8 @@ class Dataset(models.Model):
     dataset_key = models.CharField(max_length=64, blank=True, null=True,
                                    help_text=_("Identification of this dataset inside the resource"))
 
+    class Meta:
+        ordering = ['dataset_key',]
+
     def __str__(self):
         return "({}) {}".format(self.dataset_key, self.name)

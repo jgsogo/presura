@@ -13,7 +13,7 @@ class AuthorAdmin(admin.ModelAdmin):
 class MapAdmin(admin.ModelAdmin):
     list_display = ('author', 'name', 'dataset_key', 'license', 'is_public', 'published')
     list_filter = ('license', 'is_public', 'published',)
-    search_fields = ('name', 'author__name',)
+    search_fields = ('name', 'author__name', 'dataset_key',)
     readonly_fields = ('image_tag',)
 
     def image_tag(self, obj):
@@ -22,8 +22,8 @@ class MapAdmin(admin.ModelAdmin):
 
 
 class ShapeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'key',)
-    search_fields = ('name', 'dataset__name')
+    list_display = ('name', 'key', 'map',)
+    search_fields = ('name', 'map__name')
 
 
 class CommandlineAdmin(admin.ModelAdmin):
