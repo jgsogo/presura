@@ -16,41 +16,53 @@ log = logging.getLogger(__name__)
 
 # TODO: Drawing rectangles... http://matthiaseisen.com/pp/patterns/p0203/
 
+
 class Shape:
     srid = None
     shape = None
+    value = 0.  # Need to set a value to get a color.
+    alpha = 1.
 
-    def __init__(self, srid, shape):
+    def __init__(self, srid, shape, value, alpha):
         self.spatial_ref = SpatialReference(srid)
         self.shape = shape
+        self.value = value
+        self.alpha = alpha
 
-    def plot(self, target_reference, *args, **kwargs):
+    def plot(self, target_reference, mapper, *args, **kwargs):
         raise NotImplementedError("Shape is abstract")
 
 
 class ShapeLine(Shape):
-    color = None
-    lw = None
-
-    def plot(self, target_reference, *args, **kwargs):
+    def plot(self, target_reference, mapper, *args, **kwargs):
         trans = CoordTransform(self.spatial_ref, target_reference)
         self.shape.transform(trans)
         for poly in self.shape:
-            yield Polygon(poly.coords[0], closed=True, fill=False)
+            color = mapper.to_rgba(self.value)
+            yield Polygon(poly.coords[0], closed=True, fill=False, color=color, alpha=self.alpha)
 
 
 class ShapePolygon(Shape):
-    color = None
-
-    def plot(self, target_reference, *args, **kwargs):
+    def plot(self, target_reference, mapper, *args, **kwargs):
         trans = CoordTransform(self.spatial_ref, target_reference)
         self.shape.transform(trans)
-        return [Polygon(poly.coords[0], closed=True, fill=True) for poly in self.shape]
+        for poly in self.shape:
+            color = mapper.to_rgba(self.value)
+            yield Polygon(poly.coords[0], closed=True, fill=True, color=color, alpha=self.alpha)
 
 
 class Plottable:
     shapes = None
-    # colormap = 'hsv'
+    color_mapper = None
+
+    def __init__(self, *args, **kwargs):
+        super(Plottable, self).__init__(*args, **kwargs)
+        self.use_colormap()
+
+    def use_colormap(self, cmap='hot', maxvalue=1.0, minvalue=0.0):
+        colormap = matplotlib.cm.get_cmap(cmap)
+        norm = matplotlib.colors.Normalize(vmin=minvalue, vmax=maxvalue, clip=False)
+        self.color_mapper = matplotlib.cm.ScalarMappable(norm=norm, cmap=colormap)
 
     def get_shapes(self):
         if self.shapes:
@@ -64,10 +76,8 @@ class Plottable:
 
         patches = []
         shapes = self.get_shapes()
-        # cmap = plt.cm.get_cmap(self.colormap, len(shapes))
         for i, shape in enumerate(shapes):
-            # facecolor = cmap(i)
-            patches += shape.plot(target_reference=tgt_reference)
+            patches += shape.plot(target_reference=tgt_reference, mapper=self.color_mapper)
         return patches
 
     def savefig(self, tgt_srid, title=None, dpi=300):
@@ -77,14 +87,9 @@ class Plottable:
 
         for p in patches:
             ax.add_patch(p)
-        """
-        colors = 100 * np.random.rand(len(patches))
-        p = PatchCollection(patches)  #, alpha=0.4)
-        p.set_array(np.array(colors))
-        ax.add_collection(p)
-        fig.colorbar(p, ax=ax)
-        """
 
+        self.color_mapper.set_array([])
+        fig.colorbar(self.color_mapper)
         plt.axis('equal')
         plt.axis('off')
 

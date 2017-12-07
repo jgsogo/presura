@@ -5,6 +5,7 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import gettext as _
 
+import re
 import pandas as pd
 
 from model_utils import Choices
@@ -50,6 +51,11 @@ class PadronItem(models.Model):
     def __str__(self):
         return self.name
 
+    def get(self, category, period):
+        cat_idx = self.padron.ax2_values.index(category)
+        period_idx = self.padron.periods.index(period)
+        return self.values[period_idx + cat_idx*len(self.padron.ax2_values)]
+
     def as_dataframe(self):
         it_data = iter(self.values)
         all_data = []
@@ -62,3 +68,8 @@ class PadronItem(models.Model):
         df.index.name = None  # Remove index name
         return df
 
+    def key_name(self):
+        m = re.match(r"(\d+)\s(\w+)", self.name)
+        if m:
+            return m.groups()
+        return None, None
