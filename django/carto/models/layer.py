@@ -17,24 +17,23 @@ class Layer(plottable.Plottable, models.Model):
                         (1, 'fill', _('Filled')))
     SPATIAL_REFERENCE = Choices((4326, 'wgs84', 'WGS84'),
                                 (23030, 'utmED50H30N', _("Proyección UTM ED50 Huso 30 N")))
-    COLOR_PATTERN = Choices((0, 'random', _("Random")),)
 
     name = models.CharField(max_length=64)
 
     # Map
     basemap = models.ForeignKey(INEMap, on_delete=models.CASCADE)
     spatial_reference = models.IntegerField(choices=SPATIAL_REFERENCE, default=SPATIAL_REFERENCE.wgs84)
-    colormap = models.CharField(max_length=20, default='hot')
-    alpha = models.FloatField(default=1., validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
 
     # Data
     data = models.ForeignKey(INEPadron, on_delete=models.CASCADE)
     category = models.CharField(max_length=128, blank=True, null=True, help_text=_("Category to plot"))
     period = models.PositiveIntegerField(blank=True, null=True)
+    per_area_unit = models.BooleanField(default=False)
 
     # Colors
     draw_type = models.IntegerField(choices=DRAW_TYPE, default=DRAW_TYPE.line)
-    color_pattern = models.IntegerField(choices=COLOR_PATTERN, default=COLOR_PATTERN.random)
+    colormap = models.CharField(max_length=20, default='hot')
+    alpha = models.FloatField(default=1., validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
 
     # TODO: There is a lot to validate
     #   - the map correspond to the data
@@ -61,6 +60,8 @@ class Layer(plottable.Plottable, models.Model):
             shape = shapes.get(key, None)
             if shape:
                 value = item.get(self.category, self.period)
+                if self.per_area_unit:
+                    value = shape.polygons.area
                 values.append(value)
                 drawables.append(WrapperModel(shape.polygons.srid, shape.polygons, value=value, alpha=self.alpha))
             else:
