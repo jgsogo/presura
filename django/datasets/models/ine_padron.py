@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import itertools
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import gettext as _
+
+import pandas as pd
 
 from model_utils import Choices
 
@@ -47,85 +50,15 @@ class PadronItem(models.Model):
     def __str__(self):
         return self.name
 
+    def as_dataframe(self):
+        it_data = iter(self.values)
+        all_data = []
+        columns = [self.padron.ax2] + self.padron.periods
+        for it1 in self.padron.ax2_values:
+            all_data.append([it1] + list(itertools.islice(it_data, len(self.padron.periods))))
 
-"""
-class PadronMunicipios(PadronItem):
-    municipio = models.CharField(max_length=120, help_text=_("Usually postal code and name"))
+        df = pd.DataFrame.from_records(all_data, columns=columns)
+        df.set_index(self.padron.ax2, inplace=True)
+        df.index.name = None  # Remove index name
+        return df
 
-    # Drill down
-    men = ArrayField(models.PositiveIntegerField(blank=True, null=True))
-    women = ArrayField(models.PositiveIntegerField(blank=True, null=True))
-
-    def __str__(self):
-        return self.municipio
-
-    def name(self):
-        return self.municipio
-
-    def set_key(self, value):
-        self.municipio = value
-
-
-class PadronProvincias(PadronItem):
-    provincia = models.CharField(max_length=120)
-
-    # Drill down
-    men = ArrayField(models.PositiveIntegerField(blank=True, null=True))
-    women = ArrayField(models.PositiveIntegerField(blank=True, null=True))
-
-    def __str__(self):
-        return self.provincia
-
-    def name(self):
-        return self.provincia
-
-    def set_key(self, value):
-        self.provincia = value
-
-
-class PadronIslas(PadronItem):
-    isla = models.CharField(max_length=120)
-
-    # Drill down
-    men = ArrayField(models.PositiveIntegerField(blank=True, null=True))
-    women = ArrayField(models.PositiveIntegerField(blank=True, null=True))
-
-    def __str__(self):
-        return self.isla
-
-    def name(self):
-        return self.isla
-
-    def set_key(self, value):
-        self.isla = value
-
-
-class PadronCapitalProvincia(PadronItem):
-    ciudad = models.CharField(max_length=120)
-
-    # Drill down
-    men = ArrayField(models.PositiveIntegerField(blank=True, null=True))
-    women = ArrayField(models.PositiveIntegerField(blank=True, null=True))
-
-    def __str__(self):
-        return self.ciudad
-
-    def name(self):
-        return self.ciudad
-
-    def set_key(self, value):
-        self.ciudad = value
-
-
-class PadronCCAA(PadronItem):
-    ccaa = models.CharField(max_length=120)
-
-    # Drill down
-    # TODO: Add fields for 'Menos de 101 ', 'De 101 a 500 ',...
-
-    def name(self):
-        return self.ccaa
-
-    def set_key(self, value):
-        self.ccaa = value
-"""

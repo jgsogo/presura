@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 from .models import Author, INEMap, Shape, Commandline, INEPadron, PadronItem
 
@@ -34,10 +35,12 @@ class PadronAdmin(admin.ModelAdmin):
     list_display = ('author', 'name', 'ax1', 'ax2', 'license', 'is_public', 'published')
     list_filter = ('ax1', 'ax2', 'license', 'is_public', 'published',)
     search_fields = ('name', 'author__name',)
+    readonly_fields = ('inemap',)
 
 
 class PadronItemAdmin(admin.ModelAdmin):
     list_display = ('name', 'ax1', 'ax2',)
+    readonly_fields = ('dataframe',)
 
     def ax1(self, obj):
         return obj.padron.ax1
@@ -45,6 +48,8 @@ class PadronItemAdmin(admin.ModelAdmin):
     def ax2(self, obj):
         return obj.padron.ax2
 
+    def dataframe(self, obj):
+        return mark_safe(obj.as_dataframe().to_html())
 
 
 admin.site.register(Author, AuthorAdmin)
