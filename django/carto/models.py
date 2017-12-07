@@ -4,7 +4,7 @@ from django.contrib.gis.db import models
 from django.utils.translation import gettext as _
 from model_utils import Choices
 
-from datasets.models import Map
+from datasets.models import INEMap
 from datasets.utils import plottable
 
 log = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ class Layer(plottable.Plottable, models.Model):
     COLOR_PATTERN = Choices((0, 'random', _("Random")),)
 
     name = models.CharField(max_length=64)
-    dataset = models.ForeignKey(Map, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(INEMap, on_delete=models.CASCADE)
     spatial_reference = models.IntegerField(choices=SPATIAL_REFERENCE, default=SPATIAL_REFERENCE.wgs84)
 
     draw_type = models.IntegerField(choices=DRAW_TYPE, default=DRAW_TYPE.line)

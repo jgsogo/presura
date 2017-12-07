@@ -8,7 +8,7 @@ from django.utils.translation import gettext as _
 from datasets.models.author import Author
 
 
-class DatasetMeta(models.Model):
+class Dataset(models.Model):
     # Basic information
     name = models.CharField(_('name'), max_length=255)
     author = models.ForeignKey(_('author'), Author, blank=True, null=True)
@@ -18,7 +18,7 @@ class DatasetMeta(models.Model):
     published = models.DateField(_('publish date'), blank=True, null=True)
     url = models.URLField(_('url'), blank=True, null=True)
 
-    # Link to resource: required?
+    # Link to resource/download-log: required?
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -26,5 +26,5 @@ class DatasetMeta(models.Model):
     dataset_key = models.CharField(max_length=64, blank=True, null=True,
                                    help_text=_("Identification of this dataset inside the resource"))
 
-    class Meta:
-        abstract = True
+    def __str__(self):
+        return "({}) {}".format(self.dataset_key, self.name)

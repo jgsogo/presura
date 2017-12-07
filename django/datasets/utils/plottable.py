@@ -57,7 +57,7 @@ class Plottable:
             return self.shapes
         raise NotImplementedError("Method 'get_shapes' or member attribute 'shapes' must be provided")
 
-    def plot(self, fig, tgt_srid, lw=0.3):
+    def plot(self, fig, tgt_srid):
         log.debug("Plottable::plot(fig, tgt_srid='{}')".format(tgt_srid))
 
         tgt_reference = SpatialReference(tgt_srid)
@@ -67,13 +67,13 @@ class Plottable:
         # cmap = plt.cm.get_cmap(self.colormap, len(shapes))
         for i, shape in enumerate(shapes):
             # facecolor = cmap(i)
-            patches += shape.plot(lw=lw, target_reference=tgt_reference)
+            patches += shape.plot(target_reference=tgt_reference)
         return patches
 
-    def savefig(self, tgt_srid, title=None, dpi=300, lw=0.3):
-        log.debug("Plottable::savefig(tgt_srid='{}', title='{}', dpi={}, lw={})".format(tgt_srid, title, dpi, lw))
+    def savefig(self, tgt_srid, title=None, dpi=300):
+        log.debug("Plottable::savefig(tgt_srid='{}', title='{}', dpi={})".format(tgt_srid, title, dpi))
         fig, ax = plt.subplots()
-        patches = self.plot(fig, tgt_srid, lw=lw)
+        patches = self.plot(fig, tgt_srid)
 
         for p in patches:
             ax.add_patch(p)

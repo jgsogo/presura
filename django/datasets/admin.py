@@ -1,9 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Author, Map, Shape, Commandline, Padron, \
-    PadronMunicipios, PadronCCAA, PadronIslas, PadronProvincias, \
-    PadronCapitalProvincia
+from .models import Author, INEMap, Shape, Commandline, INEPadron, PadronItem
 
 
 class AuthorAdmin(admin.ModelAdmin):
@@ -33,30 +31,25 @@ class CommandlineAdmin(admin.ModelAdmin):
 
 
 class PadronAdmin(admin.ModelAdmin):
-    list_display = ('author', 'name', 'map_type', 'map', 'license', 'is_public', 'published')
-    list_filter = ('map_type', 'license', 'is_public', 'published',)
+    list_display = ('author', 'name', 'ax1', 'ax2', 'license', 'is_public', 'published')
+    list_filter = ('ax1', 'ax2', 'license', 'is_public', 'published',)
     search_fields = ('name', 'author__name',)
 
 
 class PadronItemAdmin(admin.ModelAdmin):
-    list_display = ('name', 'total',)
-    search_fields = ('padron__name',)
-    readonly_fields = ('periods', 'units', )
+    list_display = ('name', 'ax1', 'ax2',)
 
-    def periods(self, obj):
-        return obj.padron.years
+    def ax1(self, obj):
+        return obj.padron.ax1
 
-    def units(self, obj):
-        return obj.padron.units
+    def ax2(self, obj):
+        return obj.padron.ax2
+
 
 
 admin.site.register(Author, AuthorAdmin)
-admin.site.register(Map, MapAdmin)
+admin.site.register(INEMap, MapAdmin)
 admin.site.register(Shape, ShapeAdmin)
 admin.site.register(Commandline, CommandlineAdmin)
-admin.site.register(Padron, PadronAdmin)
-admin.site.register(PadronMunicipios, PadronItemAdmin)
-admin.site.register(PadronCCAA, PadronItemAdmin)
-admin.site.register(PadronIslas, PadronItemAdmin)
-admin.site.register(PadronProvincias, PadronItemAdmin)
-admin.site.register(PadronCapitalProvincia, PadronItemAdmin)
+admin.site.register(INEPadron, PadronAdmin)
+admin.site.register(PadronItem, PadronItemAdmin)

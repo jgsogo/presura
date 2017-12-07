@@ -20,7 +20,7 @@ class PadronMunicipal:
 
     def run(self):
         # Check if it has been already imported
-        if self.item.dataset.exists():
+        if self.item.datasets.exists():
             log.info("Download log '{}' for resource '{}' has already been imported".format(self.item.timestamp, self.item.resource))
             return
 

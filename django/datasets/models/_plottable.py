@@ -13,7 +13,6 @@ log = logging.getLogger(__name__)
 
 class PlottableCached(Plottable, models.Model):
     tgt_srid = 23030  # Proyección UTM ED50 Huso 30 N
-    lw = 0.3
     dpi = 300
 
     image = models.ImageField(upload_to='plotables/', blank=True, null=True)
@@ -31,7 +30,7 @@ class PlottableCached(Plottable, models.Model):
 
     def save_plot(self):
         log.debug("PlottableCached::save_plot")
-        figure = self.savefig(tgt_srid=self.tgt_srid, title=self.get_title(), dpi=self.dpi, lw=self.lw)
+        figure = self.savefig(tgt_srid=self.tgt_srid, title=self.get_title(), dpi=self.dpi)
         self.image.delete()
         filename = "{}.png".format(self.name) if settings.DEBUG else str(uuid.uuid4())
         self.image.save(filename, ImageFile(figure))

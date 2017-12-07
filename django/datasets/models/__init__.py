@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from .author import Author
-from .map import Map
+from .ine_map import INEMap
 from .shape import Shape
 from .commandline import Commandline
-from .padron import Padron, PadronMunicipios, \
-    PadronCCAA, PadronProvincias, PadronIslas, PadronCapitalProvincia
+from .dataset import Dataset
+from .ine_padron import INEPadron, PadronItem

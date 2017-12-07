@@ -3,11 +3,11 @@
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
 
-from datasets.models.map import Map
+from datasets.models.ine_map import INEMap
 
 
 class Shape(models.Model):
-    map = models.ForeignKey(Map, on_delete=models.CASCADE)
+    map = models.ForeignKey(INEMap, on_delete=models.CASCADE)
 
     key = models.CharField(max_length=64)
     name = models.CharField(max_length=120)

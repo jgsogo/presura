@@ -10,7 +10,7 @@ from datetime import datetime
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.contrib.gis.geos import Polygon, MultiPolygon
 
-from datasets.models import Author, Map, Shape
+from datasets.models import Author, INEMap, Shape
 
 log = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ def import_resource(resource_path, db_obj_associated):
         map_section = config["FIELDS{}".format(str(it))]
 
         # Generate map
-        map = Map(content_object=db_obj_associated)
+        map = INEMap(content_object=db_obj_associated)
         map.name = map_section["MapName"]
         map.author = get_author()
         map.key_field = map_section["KeyField"]
@@ -93,7 +93,7 @@ def import_resource(resource_path, db_obj_associated):
         map.name_field = map_section["NameField"]
         map.name_field_name = map_section["NamePField"]
         map.published = _get_modification_date(map_filename)
-        map.dataset_key = it_map
+        map.dataset_key, _ = os.path.splitext(it_map)
 
         map = import_map(map_filename, map)
         map.save_plot()

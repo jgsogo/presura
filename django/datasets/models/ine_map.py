@@ -5,10 +5,10 @@ from django.contrib.postgres.fields import ArrayField
 
 from datasets.models._plottable import PlottableCached
 from datasets.utils import plottable
-from ._dataset_meta import DatasetMeta
+from .dataset import Dataset
 
 
-class Map(PlottableCached, DatasetMeta):
+class INEMap(PlottableCached, Dataset):
     # Data raw
     fields = ArrayField(models.CharField(max_length=20))
     key_field = models.CharField(max_length=64)
@@ -16,9 +16,6 @@ class Map(PlottableCached, DatasetMeta):
 
     key_field_name = models.CharField(max_length=64)
     name_field_name = models.CharField(max_length=64)
-
-    def __str__(self):
-        return "{} ({})".format(self.name, self.dataset_key)
 
     def get_title(self):
         return str(self)

@@ -6,40 +6,49 @@ from django.utils.translation import gettext as _
 
 from model_utils import Choices
 
-from ._dataset_meta import DatasetMeta
+from .ine_map import INEMap
+from .dataset import Dataset
 
 
-class Padron(DatasetMeta):
-    map_type = models.CharField(max_length=128)
-    map = models.CharField(max_length=64, help_text=_("Matching map, must correspond to a Map::dataset_key"))
-
+class INEPadron(Dataset):
     units = models.CharField(max_length=64)
     headings = ArrayField(models.CharField(max_length=64))
 
-    years = ArrayField(models.SmallIntegerField())
+    # Reference data
+    _inemap_dataset_key = models.CharField(max_length=64, help_text=_("Matching map, must correspond to a Map::dataset_key"))
 
-    def __str__(self):
-        return "{} ({})".format(self.name, self.dataset_key)
+    # Data axis
+    ax1 = models.CharField(max_length=128, help_text=_("First dimension, relate to PadronItems"))
+
+    ax2 = models.CharField(max_length=128, help_text=_("Second dimension, type of data"))
+    ax2_values = ArrayField(models.CharField(max_length=120))
+
+    # ax3 = models.CharField(max_length=128, help_text=_("Third dimension, periods"))
+    periods = ArrayField(models.SmallIntegerField())
 
     @property
     def creation_date(self):
         return self.published
 
+    @property
+    def inemap(self):
+        return INEMap.objects.get(dataset_key=self._inemap_dataset_key)
+
+    @property
+    def ax1_values(self):
+        return self.padronitem_set.all().list_values('name', flat=True)
+
 
 class PadronItem(models.Model):
-    padron = models.ForeignKey(Padron, on_delete=models.CASCADE)
-    total = ArrayField(models.PositiveIntegerField(blank=True, null=True))
+    padron = models.ForeignKey(INEPadron, on_delete=models.CASCADE)
+    name = models.CharField(max_length=120, help_text=_("Usually postal code and name"))
+    values = ArrayField(models.FloatField(blank=True, null=True))
 
-    class Meta:
-        abstract = True
-
-    def name(self):
-        raise NotImplementedError
-
-    def set_key(self, value):
-        raise NotImplementedError
+    def __str__(self):
+        return self.name
 
 
+"""
 class PadronMunicipios(PadronItem):
     municipio = models.CharField(max_length=120, help_text=_("Usually postal code and name"))
 
@@ -119,3 +128,4 @@ class PadronCCAA(PadronItem):
 
     def set_key(self, value):
         self.ccaa = value
+"""
