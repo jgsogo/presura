@@ -17,6 +17,11 @@ log = logging.getLogger(__name__)
 # TODO: Drawing rectangles... http://matthiaseisen.com/pp/patterns/p0203/
 
 
+def plot_polygon(ax, points, fill, color, alpha, zorder=1):
+    poly = Polygon(points, closed=True, fill=fill, color=color, alpha=alpha, zorder=zorder)
+    ax.add_patch(poly)
+
+
 class Shape:
     @staticmethod
     def builder(**defaults):

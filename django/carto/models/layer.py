@@ -3,6 +3,7 @@ import logging
 from django.contrib.gis.db import models
 from django.utils.translation import gettext as _
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.gis.geos import GEOSGeometry, Polygon
 
 from model_utils import Choices
 
@@ -42,6 +43,14 @@ class Layer(plottable.Plottable, models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def bbox(self):
+        qs = self.basemap.shape_set.all().aggregate(extent=models.Extent('polygons'))
+        poly = Polygon.from_bbox(qs['extent'])
+        # TODO: srid for all shapes? May transform them when inserting
+        poly.srid = self.basemap.shape_set.all()[0].polygons.srid
+        return poly
 
     def get_data(self):
         qs = self.data.padronitem_set.all()
