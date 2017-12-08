@@ -5,6 +5,7 @@ import uuid
 from django.db import models
 from django.conf import settings
 from django.core.files.images import ImageFile
+from django.utils.text import slugify
 
 from datasets.utils.plottable import Plottable
 
@@ -12,9 +13,6 @@ log = logging.getLogger(__name__)
 
 
 class PlottableCached(Plottable, models.Model):
-    tgt_srid = 23030  # Proyección UTM ED50 Huso 30 N
-    dpi = 300
-
     image = models.ImageField(upload_to='plotables/', blank=True, null=True)
 
     class Meta:
@@ -25,13 +23,12 @@ class PlottableCached(Plottable, models.Model):
             self.save_plot()
         super(PlottableCached, self).save(*args, **kwargs)
 
-    def get_title(self):
-        raise NotImplementedError
-
     def save_plot(self):
         log.debug("PlottableCached::save_plot")
-        figure = self.savefig(tgt_srid=self.tgt_srid, title=self.get_title(), dpi=self.dpi)
-        self.image.delete()
-        filename = "{}.png".format(self.name) if settings.DEBUG else str(uuid.uuid4())
-        self.image.save(filename, ImageFile(figure))
+        name = str(self)
+        tgt_srid = 23030  # Proyección UTM ED50 Huso 30 N
 
+        figure = self.savefig(tgt_srid=tgt_srid, title=name, showcmap=False)
+        self.image.delete()
+        filename = "{}.png".format(slugify(name)) if settings.DEBUG else str(uuid.uuid4())
+        self.image.save(filename, ImageFile(figure))

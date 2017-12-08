@@ -18,84 +18,84 @@ log = logging.getLogger(__name__)
 
 
 class Shape:
-    srid = None
-    shape = None
-    value = 0.  # Need to set a value to get a color.
-    alpha = 1.
+    @staticmethod
+    def builder(**defaults):
+        def creator(**kwargs):
+            return Shape(**defaults, **kwargs)
+        return creator
 
-    def __init__(self, srid, shape, value, alpha):
+    def __init__(self, srid, shape, **kwargs):
         self.spatial_ref = SpatialReference(srid)
         self.shape = shape
-        self.value = value
-        self.alpha = alpha
+        self.value = kwargs.get('value', np.random.random())
+        self.alpha = kwargs.get('alpha', 1.)
+        self.fill = kwargs.get('fill', False)
+        self.zorder = kwargs.get('zorder', 1)
+        self.color = kwargs.get('color', None)
 
-    def plot(self, target_reference, mapper, *args, **kwargs):
-        raise NotImplementedError("Shape is abstract")
-
-
-class ShapeLine(Shape):
-    def plot(self, target_reference, mapper, *args, **kwargs):
+    def plot(self, target_reference, mapper):
         trans = CoordTransform(self.spatial_ref, target_reference)
         self.shape.transform(trans)
+        color = self.color or mapper.to_rgba(self.value)
         for poly in self.shape:
-            color = mapper.to_rgba(self.value)
-            yield Polygon(poly.coords[0], closed=True, fill=False, color=color, alpha=self.alpha)
-
-
-class ShapePolygon(Shape):
-    def plot(self, target_reference, mapper, *args, **kwargs):
-        trans = CoordTransform(self.spatial_ref, target_reference)
-        self.shape.transform(trans)
-        for poly in self.shape:
-            color = mapper.to_rgba(self.value)
-            yield Polygon(poly.coords[0], closed=True, fill=True, color=color, alpha=self.alpha)
+            yield Polygon(poly.coords[0], closed=True, fill=self.fill,
+                          color=color, alpha=self.alpha, zorder=self.zorder)
 
 
 class Plottable:
-    shapes = None
-    color_mapper = None
-
-    def __init__(self, *args, **kwargs):
-        super(Plottable, self).__init__(*args, **kwargs)
-        self.use_colormap()
-
-    def use_colormap(self, cmap='hot', maxvalue=1.0, minvalue=0.0):
-        colormap = matplotlib.cm.get_cmap(cmap)
-        norm = matplotlib.colors.Normalize(vmin=minvalue, vmax=maxvalue, clip=False)
-        self.color_mapper = matplotlib.cm.ScalarMappable(norm=norm, cmap=colormap)
 
     def get_shapes(self):
-        if self.shapes:
-            return self.shapes
         raise NotImplementedError("Method 'get_shapes' or member attribute 'shapes' must be provided")
 
-    def plot(self, tgt_srid):
-        log.debug("Plottable::plot(fig, tgt_srid='{}')".format(tgt_srid))
+    @property
+    def shapes(self):
+        if not hasattr(self, '__shapes'):
+            log.debug("Plottable::get_shapes()")
+            shapes = list(self.get_shapes())
+            setattr(self, '__shapes', shapes)
+        return getattr(self, '__shapes')
 
+    def get_colormap(self, cmap, force=False):
+        if force or not hasattr(self, '__colormap'):
+            colormap = matplotlib.cm.get_cmap(cmap)
+            values = [shape.value for shape in self.shapes]
+            vmax = max(values) if len(values) else 1.
+            vmin = min(values) if len(values) else 0.
+            log.debug("Plottable::get_colormap(cmap='{}', vmax='{}', vmin='{}')".format(cmap, vmax, vmin))
+            norm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax, clip=False)
+            color_mapper = matplotlib.cm.ScalarMappable(norm=norm, cmap=colormap)
+            color_mapper.set_array([])
+            setattr(self, '__colormap', color_mapper)
+        return getattr(self, '__colormap')
+
+    def get_patches(self, tgt_srid, cmap):
+        log.debug("Plottable::get_patches(fig, tgt_srid='{}')".format(tgt_srid))
         tgt_reference = SpatialReference(tgt_srid)
+        color_mapper = self.get_colormap(cmap=cmap)
+        for shape in self.shapes:
+            for patch in shape.plot(target_reference=tgt_reference, mapper=color_mapper):
+                yield patch
 
-        patches = []
-        shapes = self.get_shapes()
-        for i, shape in enumerate(shapes):
-            patches += shape.plot(target_reference=tgt_reference, mapper=self.color_mapper)
-        return patches
-
-    def savefig(self, tgt_srid, title=None, dpi=300):
-        log.debug("Plottable::savefig(tgt_srid='{}', title='{}', dpi={})".format(tgt_srid, title, dpi))
-        fig, ax = plt.subplots()
-        patches = self.plot(fig, tgt_srid)
-
-        for p in patches:
+    def plot(self, ax, tgt_srid, cmap):
+        log.debug("Plottable::plot(ax. tgt_srid='{}')".format(tgt_srid))
+        for p in self.get_patches(tgt_srid=tgt_srid, cmap=cmap):
             ax.add_patch(p)
 
-        self.color_mapper.set_array([])
-        fig.colorbar(self.color_mapper)
+    def savefig(self, tgt_srid, title=None, cmap='hsv', dpi=300, showcmap=True):
+        log.debug("Plottable::savefig(tgt_srid='{}', title='{}', cmap='{}', dpi={})".format(tgt_srid, title, cmap, dpi))
+
+        fig, ax = plt.subplots()
+        self.plot(ax, tgt_srid, cmap)
+        if showcmap:
+            color_mapper = self.get_colormap(cmap=cmap)
+            fig.colorbar(color_mapper)
         plt.axis('equal')
         plt.axis('off')
 
         if title:
             fig.suptitle(title)
 
+        # Save to bytes and return
         figure = io.BytesIO()
         fig.savefig(figure, format='png', dpi=dpi)
         plt.close()

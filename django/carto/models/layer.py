@@ -51,7 +51,8 @@ class Layer(plottable.Plottable, models.Model):
 
     def get_shapes(self):
         # Select model to draw
-        WrapperModel = plottable.ShapePolygon if self.draw_type == Layer.DRAW_TYPE.fill else plottable.ShapeLine
+        shape_builder = plottable.Shape.builder(alpha=self.alpha, fill=self.draw_type == Layer.DRAW_TYPE.fill,
+                                                zorder=1)
 
         drawables = []
         shapes = {shape.key: shape for shape in self.basemap.shape_set.all()}
@@ -63,25 +64,21 @@ class Layer(plottable.Plottable, models.Model):
                 if self.per_area_unit:
                     value = shape.polygons.area
                 values.append(value)
-                drawables.append(WrapperModel(shape.polygons.srid, shape.polygons, value=value, alpha=self.alpha))
+                drawables.append(shape_builder(srid=shape.polygons.srid, shape=shape.polygons, value=value))
             else:
                 log.warning("Shape not found for data key '{}' => {}".format(key, item))
 
-        # Normalize values
-        vmax, vmin = max(values), min(values)
-        self.use_colormap(cmap=self.colormap, maxvalue=vmax, minvalue=vmin)
-
-        # TODO: Log those shapes not found in data
+        # Log those shapes not found in data
         data = {k: v for k, v in self.get_data()}
         for key, shape in shapes.items():
             if key not in data:
-                print("Data not found for shape key '{}' => {}".format(key, shape))
-                #drawables.append(WrapperModel(shape.polygons.srid, shape.polygons, vmax*2))
+                log.warning("Data not found for shape key '{}' => {}".format(key, shape))
 
         return drawables
 
     def save_image(self, filename):
-        bytes = self.savefig(tgt_srid=self.spatial_reference, title=self.name)
+        bytes = self.savefig(tgt_srid=self.spatial_reference, title=self.name,
+                             cmap=self.colormap, showcmap=True)
         with open(filename, 'wb') as f:
             bytes.seek(0)
             f.write(bytes.read())

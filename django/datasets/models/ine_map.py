@@ -17,9 +17,12 @@ class INEMap(PlottableCached, Dataset):
     key_field_name = models.CharField(max_length=64)
     name_field_name = models.CharField(max_length=64)
 
+    def __str__(self):
+        return "{} ({})".format(self.name, self.dataset_key)
+
     def get_title(self):
         return str(self)
 
     def get_shapes(self):
         for shape in self.shape_set.all():
-            yield plottable.ShapeLine(shape.polygons.srid, shape.polygons)
+            yield plottable.Shape(srid=shape.polygons.srid, shape=shape.polygons)
