@@ -26,7 +26,7 @@ class PlottableCached(Plottable, models.Model):
         super(PlottableCached, self).save(*args, **kwargs)
 
     def get_title(self):
-        return None
+        raise NotImplementedError
 
     def save_plot(self):
         log.debug("PlottableCached::save_plot")

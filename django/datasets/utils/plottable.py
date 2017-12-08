@@ -69,7 +69,7 @@ class Plottable:
             return self.shapes
         raise NotImplementedError("Method 'get_shapes' or member attribute 'shapes' must be provided")
 
-    def plot(self, fig, tgt_srid):
+    def plot(self, tgt_srid):
         log.debug("Plottable::plot(fig, tgt_srid='{}')".format(tgt_srid))
 
         tgt_reference = SpatialReference(tgt_srid)
