@@ -71,7 +71,7 @@ class Layer(plottable.Plottable, models.Model):
             if shape:
                 value = item.get(self.category, self.period)
                 if self.per_area_unit:
-                    value = shape.polygons.area
+                    value = value/shape.polygons.area  # TODO: en qué unidades estoy dividiendo?
                 values.append(value)
                 drawables.append(shape_builder(srid=shape.polygons.srid, shape=shape.polygons, value=value))
             else:

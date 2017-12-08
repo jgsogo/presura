@@ -44,7 +44,8 @@ class Shape:
         color = self.color or mapper.to_rgba(self.value)
         for poly in self.shape:
             yield Polygon(poly.coords[0], closed=True, fill=self.fill,
-                          color=color, alpha=self.alpha, zorder=self.zorder)
+                          color=color, alpha=self.alpha, zorder=self.zorder,
+                          lw=0.1)
 
 
 class Plottable:

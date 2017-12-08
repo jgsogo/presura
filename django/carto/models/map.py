@@ -68,7 +68,7 @@ class Map(PlottableCached):
         xmin, ymin, xmax, ymax = self.get_bbox(tgt_srid=4326)
         extent = tilemapbase.Extent.from_lonlat(xmin, xmax, ymin, ymax)
         extent = extent.to_project_3857()
-        plotter = tilemapbase.Plotter(extent, self.tile_map_base, width=1200)
+        plotter = tilemapbase.Plotter(extent, self.tile_map_base, width=5000)
         plotter.plot(ax, self.tile_map_base, zorder=-1)
 
     def plot(self, ax, tgt_srid, cmap):
@@ -77,7 +77,7 @@ class Map(PlottableCached):
             self.plot_basemap(ax, tgt_srid)
 
     def savefig(self, showcmap=None, tgt_srid=None, dpi=300, cmap=None, *args, **kwargs):
-        return super(Map, self).savefig(tgt_srid='epsg:3857', showcmap=True, dpi=1200,
+        return super(Map, self).savefig(tgt_srid='epsg:3857', showcmap=True, dpi=2400,
                                         cmap=self.colormap,
                                         *args, **kwargs)
 
