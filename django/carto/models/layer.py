@@ -1,5 +1,6 @@
 
 import logging
+import numpy as np
 from django.contrib.gis.db import models
 from django.utils.translation import gettext as _
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -77,6 +78,7 @@ class Layer(plottable.Plottable, models.Model):
             yield key, item
 
     def get_shapes(self):
+        log.debug("Layer::get_shapes - {}".format(self))
         # Select model to draw
         shape_builder = plottable.Shape.builder(**self.shape_properties)
 
@@ -87,9 +89,12 @@ class Layer(plottable.Plottable, models.Model):
             shape = shapes.get(key, None)
             if shape:
                 value = item.get(self.category, self.period)
+                values.append(value)
                 if self.per_area_unit:
                     value = value/shape.polygons.area  # TODO: en qué unidades estoy dividiendo?
-                values.append(value)
+                if value > 100000000.:
+                    # TODO: ¿Qué hago con los outliers?
+                    log.debug("\t OUTLIER!! {} - {} habs/u^2".format(item, value))
                 drawables.append(shape_builder(srid=shape.polygons.srid, shape=shape.polygons, value=value))
             else:
                 log.warning("Shape not found for data key '{}' => {}".format(key, item))
@@ -99,6 +104,8 @@ class Layer(plottable.Plottable, models.Model):
         for key, shape in shapes.items():
             if key not in data:
                 log.warning("Data not found for shape key '{}' => {}".format(key, shape))
+                drawables.append(shape_builder(srid=shape.polygons.srid, shape=shape.polygons,
+                                               value=0., alpha=1., color='b'))
 
         return drawables
 

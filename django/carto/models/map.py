@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import logging
+import numpy as np
 from django.db import models
 # from django.contrib.gis.db import models
 
@@ -12,6 +14,7 @@ from .layer import Layer
 import tilemapbase
 import inspect
 
+log = logging.getLogger(__name__)
 tilemapbase.init(create=True)  # TODO: Just once
 
 
@@ -39,6 +42,10 @@ class Map(PlottableCached):
     alpha = models.FloatField(default=1., validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
     lw = models.FloatField(default=0.1)
 
+    # Graph extras
+    show_colormap = models.BooleanField(default=True)
+    show_title = models.BooleanField(default=True)
+
     def __str__(self):
         return self.name
 
@@ -54,9 +61,18 @@ class Map(PlottableCached):
             trans = CoordTransform(SpatialReference(bbox.srid), tgt_reference)
             bbox.transform(trans)
             bboxes.append(bbox.extent)
-        maximums = list(map(max, zip(*bboxes)))
-        minimums = list(map(min, zip(*bboxes)))
-        return minimums[0], minimums[1], maximums[2], maximums[3]
+        if bboxes:
+            maximums = list(map(max, zip(*bboxes)))
+            minimums = list(map(min, zip(*bboxes)))
+            return minimums[0], minimums[1], maximums[2], maximums[3]
+        return 0, 0, 1, 1
+
+    def get_max_min(self, values):
+        if values:
+            vmin, vmax = np.percentile(values, (5, 95))
+            log.debug("Map::get_max_min: {} -> {} (percentil 5/95)".format(vmin, vmax))
+            return vmax, vmin
+        return 1., 0.
 
     def get_shapes(self):
         shape_properties = {'alpha': self.alpha,
@@ -79,9 +95,9 @@ class Map(PlottableCached):
         if self.tile_map_base:
             self.plot_basemap(ax, tgt_srid)
 
-    def savefig(self, showcmap=None, tgt_srid=None, dpi=300, cmap=None, *args, **kwargs):
-        return super(Map, self).savefig(tgt_srid='epsg:3857', showcmap=True, dpi=self.dpi,
-                                        cmap=self.colormap,
+    def savefig(self, showcmap=None, tgt_srid=None, dpi=300, cmap=None, title=None, *args, **kwargs):
+        return super(Map, self).savefig(tgt_srid='epsg:3857', showcmap=self.show_colormap, dpi=self.dpi,
+                                        cmap=self.colormap, title=title if self.show_title else None,
                                         *args, **kwargs)
 
 

@@ -26,7 +26,9 @@ class Shape:
     @staticmethod
     def builder(**defaults):
         def creator(**kwargs):
-            return Shape(**defaults, **kwargs)
+            z = defaults.copy()
+            z.update(**kwargs)
+            return Shape(**z)
         return creator
 
     def __init__(self, srid, shape, **kwargs):
@@ -54,6 +56,11 @@ class Plottable:
     def get_shapes(self):
         raise NotImplementedError("Method 'get_shapes' or member attribute 'shapes' must be provided")
 
+    def get_max_min(self, values):
+        vmax = max(values) if len(values) else 1.
+        vmin = min(values) if len(values) else 0.
+        return vmax, vmin
+
     @property
     def shapes(self):
         if not hasattr(self, '__shapes'):
@@ -66,8 +73,7 @@ class Plottable:
         if force or not hasattr(self, '__colormap'):
             colormap = matplotlib.cm.get_cmap(cmap)
             values = [shape.value for shape in self.shapes]
-            vmax = max(values) if len(values) else 1.
-            vmin = min(values) if len(values) else 0.
+            vmax, vmin = self.get_max_min(values)
             log.debug("Plottable::get_colormap(cmap='{}', vmax='{}', vmin='{}')".format(cmap, vmax, vmin))
             norm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax, clip=False)
             color_mapper = matplotlib.cm.ScalarMappable(norm=norm, cmap=colormap)
