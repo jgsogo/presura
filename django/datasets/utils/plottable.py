@@ -37,6 +37,7 @@ class Shape:
         self.fill = kwargs.get('fill', False)
         self.zorder = kwargs.get('zorder', 1)
         self.color = kwargs.get('color', None)
+        self.lw = kwargs.get('lw', 0.1)
 
     def plot(self, target_reference, mapper):
         trans = CoordTransform(self.spatial_ref, target_reference)
@@ -45,7 +46,7 @@ class Shape:
         for poly in self.shape:
             yield Polygon(poly.coords[0], closed=True, fill=self.fill,
                           color=color, alpha=self.alpha, zorder=self.zorder,
-                          lw=0.1)
+                          lw=self.lw)
 
 
 class Plottable:

@@ -35,11 +35,16 @@ class Layer(plottable.Plottable, models.Model):
     draw_type = models.IntegerField(choices=DRAW_TYPE, default=DRAW_TYPE.line)
     colormap = models.CharField(max_length=20, default='hot')
     alpha = models.FloatField(default=1., validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
+    lw = models.FloatField(default=0.)
 
     # TODO: There is a lot to validate
     #   - the map correspond to the data
     #   - the category exists in data
     #   - period exists in data
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._shape_properties = None
 
     def __str__(self):
         return self.name
@@ -52,6 +57,19 @@ class Layer(plottable.Plottable, models.Model):
         poly.srid = self.basemap.shape_set.all()[0].polygons.srid
         return poly
 
+    @property
+    def shape_properties(self):
+        if not self._shape_properties:
+            self._shape_properties = {'alpha': self.alpha,
+                                      'lw': self.lw,
+                                      'fill': self.draw_type == Layer.DRAW_TYPE.fill,
+                                      'zorder': 1}
+        return self._shape_properties
+
+    @shape_properties.setter
+    def shape_properties(self, properties):
+        self.shape_properties.update(properties)
+
     def get_data(self):
         qs = self.data.padronitem_set.all()
         for item in qs:
@@ -60,8 +78,7 @@ class Layer(plottable.Plottable, models.Model):
 
     def get_shapes(self):
         # Select model to draw
-        shape_builder = plottable.Shape.builder(alpha=self.alpha, fill=self.draw_type == Layer.DRAW_TYPE.fill,
-                                                zorder=1)
+        shape_builder = plottable.Shape.builder(**self.shape_properties)
 
         drawables = []
         shapes = {shape.key: shape for shape in self.basemap.shape_set.all()}

@@ -41,6 +41,7 @@ class PadronAdmin(admin.ModelAdmin):
 class PadronItemAdmin(admin.ModelAdmin):
     list_display = ('name', 'ax1', 'ax2',)
     readonly_fields = ('dataframe',)
+    search_fields = ('name',)
 
     def ax1(self, obj):
         return obj.padron.ax1

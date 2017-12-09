@@ -18,6 +18,10 @@ class MapAdmin(admin.ModelAdmin):
     image_tag.short_description = 'ImageTag'
 
 
+class MapLayerAdmin(admin.ModelAdmin):
+    list_display = ('map', 'layer',)
+
+
 admin.site.register(Layer, LayerAdmin)
 admin.site.register(Map, MapAdmin)
-admin.site.register(MapLayer)
+admin.site.register(MapLayer, MapLayerAdmin)
